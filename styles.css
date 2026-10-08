@@ -1001,6 +1001,17 @@
     gap: 1rem;
 }
 
+.local-quizbot-desk .local-quizbot-remedialgrid > .card {
+    min-width: 0;
+}
+
+/* "Move to": the menu takes what is left of the line; a long topic name is cut, not pushed past the card. */
+.local-quizbot-desk .local-quizbot-moveto select {
+    flex: 1 1 0;
+    min-width: 0;
+    width: auto;
+}
+
 .local-quizbot-desk .local-quizbot-mark {
     border: 1px solid #d4b829;
     border-radius: 999px;

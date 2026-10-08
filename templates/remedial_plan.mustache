@@ -50,15 +50,11 @@
             {{#groups}}
             <div class="card">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start gap-2" style="gap: .5rem">
-                        <div>
-                            <h2 class="h5 mb-1" dir="auto">{{topic}}</h2>
-                            <div class="small text-muted">
-                                {{#material}}{{#str}}remedial_from, local_quizbot, {{material}}{{/str}}{{/material}}
-                                {{#nomaterial}}{{#str}}remedial_nomaterial, local_quizbot{{/str}}{{/nomaterial}}
-                            </div>
-                        </div>
-                        <div class="small text-muted text-end text-right text-nowrap">{{#str}}remedial_classpct, local_quizbot, {{pct}}{{/str}}</div>
+                    <h2 class="h5 mb-1" dir="auto">{{topic}}</h2>
+                    <div class="small text-muted">{{#str}}remedial_classpct, local_quizbot, {{pct}}{{/str}}</div>
+                    <div class="small text-muted">
+                        {{#material}}{{#str}}remedial_from, local_quizbot, {{material}}{{/str}}{{/material}}
+                        {{#nomaterial}}{{#str}}remedial_nomaterial, local_quizbot{{/str}}{{/nomaterial}}
                     </div>
                     <ul class="list-unstyled my-2">
                         {{#students}}
@@ -66,8 +62,8 @@
                             <input type="checkbox" class="form-check-input position-static m-0" name="s[]" value="{{id}}" id="local-quizbot-s{{id}}" data-group="{{group}}" checked>
                             <label for="local-quizbot-s{{id}}" class="mb-0 flex-grow-1">{{name}} <span class="local-quizbot-num local-quizbot-weaktext small">{{score}}</span></label>
                             {{#hasothers}}
-                            <label class="small text-muted mb-0 d-flex align-items-center" style="gap: .35rem">{{#str}}remedial_moveto, local_quizbot{{/str}}
-                                <select name="m[{{id}}]" class="form-select form-select-sm custom-select custom-select-sm w-auto">
+                            <label class="small text-muted mb-0 d-flex align-items-center w-100 local-quizbot-moveto" style="gap: .35rem"><span class="text-nowrap">{{#str}}remedial_moveto, local_quizbot{{/str}}</span>
+                                <select name="m[{{id}}]" class="form-select form-select-sm custom-select custom-select-sm">
                                     <option value="">{{#str}}remedial_thistopic, local_quizbot{{/str}}</option>
                                     {{#others}}<option value="{{key}}">{{topic}}</option>{{/others}}
                                 </select>
