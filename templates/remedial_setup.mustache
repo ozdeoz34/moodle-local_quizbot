@@ -1,0 +1,154 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_quizbot/remedial_setup
+
+    Make remedial quizzes, step 3: the names students see, where the quizzes go, who sees them, feedback, attempts,
+    grade, due date and the message - the same for all; then they are made. A plain form: no script needed.
+
+    Example context (json):
+    {
+        "actionurl": "#", "sesskey": "abc", "cmid": 33, "hidden": [{"name": "run", "value": "abc"}],
+        "quizzes": [{"id": 4, "topic": "The Calvin cycle", "name": "Extra practice: The Calvin cycle",
+            "note": "7 students · 8 questions · group “Remedial: The Calvin cycle”", "empty": false}],
+        "sections": [{"value": 1, "label": "Topic 1", "selected": true}], "canmessage": true,
+        "messagetext": "Hi {firstname}", "noavailability": false, "summary": "1 quiz for 7 students",
+        "createlabel": "Create 1 quiz",
+        "steps": [{"number": 3, "label": "Set up", "done": false, "current": true}]
+    }
+}}
+<div class="local-quizbot">
+    {{> local_quizbot/steps }}
+    {{#noavailability}}<div class="alert alert-warning">{{#str}}remedial_noavailability, local_quizbot{{/str}}</div>{{/noavailability}}
+    <form method="post" action="{{actionurl}}" id="local-quizbot-remedialsetup">
+        <input type="hidden" name="sesskey" value="{{sesskey}}">
+        <input type="hidden" name="cmid" value="{{cmid}}">
+        <input type="hidden" name="step" value="setup">
+        {{#hidden}}<input type="hidden" name="{{name}}" value="{{value}}">{{/hidden}}
+        <p class="text-muted">{{#str}}remedial_setuphelp, local_quizbot{{/str}}</p>
+
+        <div class="row">
+            <div class="col-lg-8 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <fieldset class="mb-4">
+                            <legend class="h5">{{#str}}remedial_names, local_quizbot{{/str}}</legend>
+                            <p class="small text-muted">{{#str}}remedial_nameshelp, local_quizbot{{/str}}</p>
+                            {{#quizzes}}
+                            <div class="d-flex flex-wrap align-items-center mb-2" style="gap: .5rem">
+                                <label for="local-quizbot-name{{id}}" class="mb-0 text-muted" style="flex: 0 0 12rem" dir="auto">{{topic}}</label>
+                                <input type="text" class="form-control" style="flex: 1 1 16rem" id="local-quizbot-name{{id}}" name="name[{{id}}]" value="{{name}}" maxlength="255" {{#empty}}disabled{{/empty}}>
+                            </div>
+                            {{/quizzes}}
+                        </fieldset>
+
+                        <div class="mb-4">
+                            <label for="local-quizbot-section" class="h5 d-block">{{#str}}remedial_where, local_quizbot{{/str}}</label>
+                            <select id="local-quizbot-section" name="section" class="form-select custom-select w-auto">
+                                {{#sections}}<option value="{{value}}" {{#selected}}selected{{/selected}}>{{label}}</option>{{/sections}}
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <h2 class="h5">{{#str}}remedial_who, local_quizbot{{/str}}</h2>
+                            <p class="local-quizbot-note p-2 mb-0">{{#str}}remedial_whohelp, local_quizbot{{/str}}</p>
+                        </div>
+
+                        <fieldset class="mb-4">
+                            <legend class="h5">{{#str}}remedial_feedback, local_quizbot{{/str}}</legend>
+                            <div class="form-check">
+                                <input type="radio" class="form-check-input" name="behaviour" value="interactive" id="local-quizbot-bi" checked>
+                                <label class="form-check-label" for="local-quizbot-bi">{{#str}}remedial_interactive, local_quizbot{{/str}} <span class="d-block small text-muted">{{#str}}remedial_interactivehelp, local_quizbot{{/str}}</span></label>
+                            </div>
+                            <div class="form-check">
+                                <input type="radio" class="form-check-input" name="behaviour" value="deferredfeedback" id="local-quizbot-bd">
+                                <label class="form-check-label" for="local-quizbot-bd">{{#str}}remedial_deferred, local_quizbot{{/str}}</label>
+                            </div>
+                        </fieldset>
+
+                        <div class="d-flex flex-wrap mb-4" style="gap: 1.5rem">
+                            <div>
+                                <label for="local-quizbot-attempts" class="h5 d-block">{{#str}}remedial_attempts, local_quizbot{{/str}}</label>
+                                <select id="local-quizbot-attempts" name="attempts" class="form-select custom-select w-auto">
+                                    <option value="0" selected>{{#str}}unlimited{{/str}}</option>
+                                    <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+                                </select>
+                            </div>
+                            <div>
+                                <span class="h5 d-block">{{#str}}remedial_grade, local_quizbot{{/str}}</span>
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" name="counted" value="1" id="local-quizbot-counted">
+                                    <label class="form-check-label" for="local-quizbot-counted">{{#str}}remedial_counted, local_quizbot{{/str}}</label>
+                                </div>
+                            </div>
+                            <div>
+                                <span class="h5 d-block">{{#str}}remedial_due, local_quizbot{{/str}}</span>
+                                <div class="d-flex align-items-center" style="gap: .5rem">
+                                    <input type="checkbox" class="form-check-input position-static m-0" name="hasdue" value="1" id="local-quizbot-hasdue">
+                                    <label for="local-quizbot-hasdue" class="mb-0">{{#str}}remedial_setdue, local_quizbot{{/str}}</label>
+                                    <input type="date" class="form-control w-auto" name="due" aria-label="{{#str}}remedial_due, local_quizbot{{/str}}">
+                                </div>
+                            </div>
+                            <div>
+                                <label for="local-quizbot-keep" class="h5 d-block">{{#str}}remedial_keep, local_quizbot{{/str}}</label>
+                                <select id="local-quizbot-keep" name="keep" class="form-select custom-select w-auto">
+                                    <option value="quiz" selected>{{#str}}keep_quiz, local_quizbot{{/str}}</option>
+                                    <option value="shared">{{#str}}keep_shared, local_quizbot{{/str}}</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        {{#canmessage}}
+                        <div>
+                            <div class="form-check mb-1">
+                                <input type="checkbox" class="form-check-input" name="message" value="1" id="local-quizbot-message" checked>
+                                <label class="form-check-label h5 mb-0" for="local-quizbot-message">{{#str}}remedial_sendmessage, local_quizbot{{/str}}</label>
+                            </div>
+                            <label for="local-quizbot-messagetext" class="small text-muted">{{#str}}remedial_messagehelp, local_quizbot{{/str}}</label>
+                            <textarea id="local-quizbot-messagetext" name="messagetext" class="form-control" rows="4">{{messagetext}}</textarea>
+                        </div>
+                        {{/canmessage}}
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h2 class="h5">{{#str}}remedial_whatmade, local_quizbot{{/str}}</h2>
+                        {{#quizzes}}
+                        <div class="border-top pt-2 mt-2">
+                            <div class="fw-bold font-weight-bold" dir="auto">{{name}}</div>
+                            <div class="small text-muted">{{note}}</div>
+                            {{#empty}}<div class="small local-quizbot-weaktext">{{#str}}remedial_emptyquiz, local_quizbot{{/str}}</div>{{/empty}}
+                        </div>
+                        {{/quizzes}}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body d-flex flex-wrap align-items-center justify-content-between" style="gap: 1rem">
+                <div class="fw-bold font-weight-bold">{{summary}}</div>
+                <div class="d-flex flex-wrap" style="gap: .5rem">
+                    <button type="submit" name="action" value="back" class="btn btn-secondary">{{#str}}back{{/str}}</button>
+                    <button type="submit" name="action" value="create" class="btn btn-primary btn-lg" {{#noavailability}}disabled{{/noavailability}}>{{createlabel}}</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

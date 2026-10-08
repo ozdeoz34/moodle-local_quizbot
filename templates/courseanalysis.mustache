@@ -1,0 +1,170 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_quizbot/courseanalysis
+
+    Quizbot Analysis of a whole course (1.1): the quizzes with Quizbot questions, topics and skills across them, and the
+    students who need attention. Plain HTML: no script needed.
+
+    Example context (json):
+    {
+        "coursename": "Biology, Year 10", "groupmenu": "", "hasquizzes": true,
+        "tiles": [{"label": "Students", "value": 24, "note": "", "warn": false}],
+        "quizzes": [{"name": "Photosynthesis", "taken": true, "finished": 22, "state": "of 24", "average": "66%",
+            "weakest": "The Calvin cycle (47%)", "url": "#"}],
+        "topics": [{"name": "The Calvin cycle", "quizzes": "Photosynthesis", "pct": "47%", "bar": {"width": 47, "weak": true} }],
+        "hastopics": true,
+        "skills": [{"name": "Apply", "pct": "54%", "bar": {"width": 54, "weak": true} }], "hasskills": true,
+        "students": [{"name": "Aylin K.", "done": 3, "average": "44%", "direction": "Falling: 52% → 41% → 38%",
+            "falling": true, "revise": "The Calvin cycle", "progressurl": "#"}], "hasstudents": true
+    }
+}}
+<div class="local-quizbot local-quizbot-courseanalysis">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3" style="gap: 1rem">
+        <p class="mb-0">
+            <span class="fw-bold font-weight-bold" dir="auto">{{coursename}}</span>
+            <span class="d-block small text-muted">{{#str}}course_basis, local_quizbot{{/str}}</span>
+        </p>
+        {{{groupmenu}}}
+    </div>
+
+    {{^hasquizzes}}
+    <div class="card">
+        <div class="card-body">
+            <h2 class="h5">{{#str}}course_none, local_quizbot{{/str}}</h2>
+            <p class="mb-0 text-muted">{{#str}}course_none_help, local_quizbot{{/str}}</p>
+        </div>
+    </div>
+    {{/hasquizzes}}
+
+    {{#hasquizzes}}
+    <div class="local-quizbot-tiles mb-3">
+        {{#tiles}}
+        <div class="local-quizbot-tile local-quizbot-figure {{#warn}}is-warn{{/warn}}">
+            <div class="local-quizbot-figurelabel">{{label}}</div>
+            <div class="local-quizbot-figurevalue">{{value}}</div>
+            {{#note}}<div class="small text-muted">{{note}}</div>{{/note}}
+        </div>
+        {{/tiles}}
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <h2 class="h5">{{#str}}course_quizlist, local_quizbot{{/str}}</h2>
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col">{{#str}}course_quiz, local_quizbot{{/str}}</th>
+                            <th scope="col">{{#str}}analysis_finished, local_quizbot{{/str}}</th>
+                            <th scope="col" class="text-end text-right">{{#str}}analysis_average, local_quizbot{{/str}}</th>
+                            <th scope="col">{{#str}}course_weakest, local_quizbot{{/str}}</th>
+                            <th scope="col"><span class="visually-hidden sr-only">{{#str}}analysis, local_quizbot{{/str}}</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#quizzes}}
+                        <tr>
+                            <th scope="row" dir="auto">{{name}}</th>
+                            <td>{{#taken}}<span class="local-quizbot-num">{{finished}}</span> {{/taken}}<span class="small text-muted">{{state}}</span></td>
+                            <td class="text-end text-right local-quizbot-num">{{average}}</td>
+                            <td><bdi>{{weakest}}</bdi></td>
+                            <td class="text-end text-right">{{#taken}}<a href="{{url}}">{{#str}}course_results, local_quizbot{{/str}}</a>{{/taken}}</td>
+                        </tr>
+                        {{/quizzes}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-7 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h2 class="h5 mb-1">{{#str}}course_topics, local_quizbot{{/str}}</h2>
+                    <p class="small text-muted">{{#str}}course_topics_help, local_quizbot{{/str}}</p>
+                    {{#topics}}
+                    <div class="local-quizbot-meter mb-2">
+                        <div class="d-flex justify-content-between gap-2" style="gap: .5rem">
+                            <span><span class="fw-bold font-weight-bold" dir="auto">{{name}}</span> <span class="small text-muted">· <bdi>{{quizzes}}</bdi></span></span>
+                            <span class="local-quizbot-num">{{pct}}</span>
+                        </div>
+                        <div class="local-quizbot-track"><span class="local-quizbot-fill {{#bar.weak}}is-weak{{/bar.weak}}" style="width: {{bar.width}}%"></span></div>
+                    </div>
+                    {{/topics}}
+                    {{^hastopics}}<p class="mb-0">{{#str}}course_notopics, local_quizbot{{/str}}</p>{{/hastopics}}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h2 class="h5 mb-1">{{#str}}course_skills, local_quizbot{{/str}}</h2>
+                    <p class="small text-muted">{{#str}}analysis_skills_help, local_quizbot{{/str}}</p>
+                    {{#skills}}
+                    <div class="local-quizbot-meter mb-2">
+                        <div class="d-flex justify-content-between gap-2" style="gap: .5rem">
+                            <span class="fw-bold font-weight-bold">{{name}}</span>
+                            <span class="local-quizbot-num">{{pct}}</span>
+                        </div>
+                        <div class="local-quizbot-track"><span class="local-quizbot-fill {{#bar.weak}}is-weak{{/bar.weak}}" style="width: {{bar.width}}%"></span></div>
+                    </div>
+                    {{/skills}}
+                    {{^hasskills}}<p class="mb-0">{{#str}}analysis_noskills, local_quizbot{{/str}}</p>{{/hasskills}}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <h2 class="h5 mb-1">{{#str}}course_attentionheading, local_quizbot{{/str}}</h2>
+            <p class="small text-muted">{{#str}}course_attentionhelp, local_quizbot{{/str}}</p>
+            {{#hasstudents}}
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col">{{#str}}analysis_student, local_quizbot{{/str}}</th>
+                            <th scope="col" class="text-end text-right">{{#str}}course_done, local_quizbot{{/str}}</th>
+                            <th scope="col" class="text-end text-right">{{#str}}analysis_average, local_quizbot{{/str}}</th>
+                            <th scope="col">{{#str}}course_direction, local_quizbot{{/str}}</th>
+                            <th scope="col">{{#str}}analysis_revise, local_quizbot{{/str}}</th>
+                            <th scope="col"><span class="visually-hidden sr-only">{{#str}}myprogress, local_quizbot{{/str}}</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#students}}
+                        <tr>
+                            <th scope="row">{{name}}</th>
+                            <td class="text-end text-right local-quizbot-num">{{done}}</td>
+                            <td class="text-end text-right local-quizbot-num local-quizbot-weaktext">{{average}}</td>
+                            <td class="{{#falling}}local-quizbot-weaktext{{/falling}}">{{direction}}</td>
+                            <td><bdi>{{revise}}</bdi></td>
+                            <td class="text-end text-right"><a href="{{progressurl}}">{{#str}}course_progress, local_quizbot{{/str}}</a></td>
+                        </tr>
+                        {{/students}}
+                    </tbody>
+                </table>
+            </div>
+            {{/hasstudents}}
+            {{^hasstudents}}<p class="mb-0">{{#str}}course_noattention, local_quizbot{{/str}}</p>{{/hasstudents}}
+        </div>
+    </div>
+    {{/hasquizzes}}
+</div>

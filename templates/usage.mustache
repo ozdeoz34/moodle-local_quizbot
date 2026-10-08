@@ -1,0 +1,155 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_quizbot/usage
+
+    Quizbot usage, for the site administrator (1.1): the licence, summary figures, questions added week by week, and the
+    teachers and courses. Students are only counted. Plain HTML: no script needed.
+
+    Example context (json):
+    {
+        "period": "This licence year: 15 Aug 2026 to 15 Aug 2027", "haslicence": true, "licenceurl": "#", "csvurl": "#",
+        "licence": [{"label": "Plan", "value": "School 20"}],
+        "tiles": [{"label": "Teachers active, last 30 days", "value": 5, "note": "7 have used it this year"}],
+        "weeks": [{"n": 64, "label": "17 Aug", "height": 40}],
+        "teachers": [{"name": "A. Shah", "courses": 3, "questions": "512", "last": "6 Oct"}], "hasteachers": true,
+        "courses": [{"name": "Biology, Year 10", "url": "#", "quizzes": 4, "questions": "96", "students": "24",
+            "average": "70%"}], "hascourses": true
+    }
+}}
+<div class="local-quizbot local-quizbot-usage">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3" style="gap: 1rem">
+        <p class="small text-muted mb-0">{{period}}</p>
+        <a href="{{csvurl}}" class="btn btn-sm btn-outline-secondary">{{#str}}usage_csv, local_quizbot{{/str}}</a>
+    </div>
+
+    {{#haslicence}}
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="d-flex flex-wrap align-items-baseline justify-content-between gap-2" style="gap: .5rem">
+                <h2 class="h5">{{#str}}usage_licence, local_quizbot{{/str}}</h2>
+                <a href="{{licenceurl}}" class="small">{{#str}}licencestatus, local_quizbot{{/str}}</a>
+            </div>
+            <div class="local-quizbot-tiles">
+                {{#licence}}
+                <div class="local-quizbot-figure p-0">
+                    <div class="local-quizbot-figurelabel">{{label}}</div>
+                    <div class="local-quizbot-figuretext">{{value}}</div>
+                </div>
+                {{/licence}}
+            </div>
+            <p class="small text-muted mb-0 mt-2">{{#str}}usage_licencenote, local_quizbot{{/str}}</p>
+        </div>
+    </div>
+    {{/haslicence}}
+
+    <div class="local-quizbot-tiles mb-3">
+        {{#tiles}}
+        <div class="local-quizbot-tile local-quizbot-figure">
+            <div class="local-quizbot-figurelabel">{{label}}</div>
+            <div class="local-quizbot-figurevalue">{{value}}</div>
+            {{#note}}<div class="small text-muted">{{note}}</div>{{/note}}
+        </div>
+        {{/tiles}}
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <h2 class="h5 mb-1">{{#str}}usage_weeks, local_quizbot{{/str}}</h2>
+            <p class="small text-muted">{{#str}}usage_weeks_help, local_quizbot{{/str}}</p>
+            <div class="local-quizbot-histogram">
+                {{#weeks}}
+                <div class="local-quizbot-histcol">
+                    <span class="local-quizbot-histn">{{n}}</span>
+                    <span class="local-quizbot-histbar" style="height: {{height}}%"></span>
+                </div>
+                {{/weeks}}
+            </div>
+            <div class="local-quizbot-histlabels" aria-hidden="true">{{#weeks}}<span>{{label}}</span>{{/weeks}}</div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h2 class="h5 mb-1">{{#str}}usage_teachers, local_quizbot{{/str}}</h2>
+                    <p class="small text-muted">{{#str}}usage_teachers_help, local_quizbot{{/str}}</p>
+                    {{#hasteachers}}
+                    <div class="table-responsive">
+                        <table class="table mb-0">
+                            <thead>
+                                <tr>
+                                    <th scope="col">{{#str}}usage_teacher, local_quizbot{{/str}}</th>
+                                    <th scope="col" class="text-end text-right">{{#str}}usage_courses_col, local_quizbot{{/str}}</th>
+                                    <th scope="col" class="text-end text-right">{{#str}}usage_questions, local_quizbot{{/str}}</th>
+                                    <th scope="col">{{#str}}usage_last, local_quizbot{{/str}}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{#teachers}}
+                                <tr>
+                                    <th scope="row">{{name}}</th>
+                                    <td class="text-end text-right local-quizbot-num">{{courses}}</td>
+                                    <td class="text-end text-right local-quizbot-num">{{questions}}</td>
+                                    <td>{{last}}</td>
+                                </tr>
+                                {{/teachers}}
+                            </tbody>
+                        </table>
+                    </div>
+                    {{/hasteachers}}
+                    {{^hasteachers}}<p class="mb-0">{{#str}}usage_noteachers, local_quizbot{{/str}}</p>{{/hasteachers}}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h2 class="h5 mb-1">{{#str}}usage_coursesheading, local_quizbot{{/str}}</h2>
+                    <p class="small text-muted">{{#str}}usage_courses_help, local_quizbot{{/str}}</p>
+                    {{#hascourses}}
+                    <div class="table-responsive">
+                        <table class="table mb-0">
+                            <thead>
+                                <tr>
+                                    <th scope="col">{{#str}}usage_course, local_quizbot{{/str}}</th>
+                                    <th scope="col" class="text-end text-right">{{#str}}usage_quizzes_col, local_quizbot{{/str}}</th>
+                                    <th scope="col" class="text-end text-right">{{#str}}course_students, local_quizbot{{/str}}</th>
+                                    <th scope="col" class="text-end text-right">{{#str}}analysis_average, local_quizbot{{/str}}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{#courses}}
+                                <tr>
+                                    <th scope="row"><a href="{{url}}" dir="auto">{{name}}</a></th>
+                                    <td class="text-end text-right local-quizbot-num">{{quizzes}}</td>
+                                    <td class="text-end text-right local-quizbot-num">{{students}}</td>
+                                    <td class="text-end text-right local-quizbot-num">{{average}}</td>
+                                </tr>
+                                {{/courses}}
+                            </tbody>
+                        </table>
+                    </div>
+                    {{/hascourses}}
+                    {{^hascourses}}<p class="mb-0">{{#str}}usage_nocourses, local_quizbot{{/str}}</p>{{/hascourses}}
+                </div>
+            </div>
+        </div>
+    </div>
+    <p class="small text-muted mb-0">{{#str}}usage_privacy, local_quizbot{{/str}}</p>
+</div>

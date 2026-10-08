@@ -1,0 +1,127 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_quizbot/remedial_plan
+
+    Make remedial quizzes, step 1: one card per topic to revise, with its students (untick one to leave them out, or
+    move them to another topic) and the number of questions; the kinds of question and the students' level for all.
+    A plain form: no script needed, any theme.
+
+    Example context (json):
+    {
+        "actionurl": "#", "sesskey": "abc", "cmid": 33, "subtitle": "Photosynthesis · 11 students below the pass mark (60%)",
+        "leftnote": "", "min": 3, "max": 20,
+        "groups": [{"key": "ab12", "topic": "The Calvin cycle", "material": "The Calvin cycle (PDF handout)",
+            "nomaterial": false, "pct": "58%", "single": false, "n": 8,
+            "students": [{"id": 5, "name": "Theo Gomez", "group": "ab12", "score": "38%", "hasothers": true,
+                "others": [{"key": "cd34", "topic": "Leaf cross-section"}]}]}],
+        "kinds": [{"id": "multichoice", "label": "Multiple choice", "checked": true, "disabled": false}],
+        "levels": [{"value": "secondary", "label": "Secondary school", "selected": true}],
+        "summary": "1 quiz · 8 questions", "summarytemplate": "{quizzes} quizzes · {questions} questions",
+        "licenceleft": "92 questions left", "cancelurl": "#",
+        "steps": [{"number": 1, "label": "Who and what", "done": false, "current": true}]
+    }
+}}
+<div class="local-quizbot">
+    {{> local_quizbot/steps }}
+    <form method="post" action="{{actionurl}}" id="local-quizbot-remedialplan">
+        <input type="hidden" name="sesskey" value="{{sesskey}}">
+        <input type="hidden" name="cmid" value="{{cmid}}">
+        <input type="hidden" name="step" value="plan">
+        <p class="text-muted mb-1">{{subtitle}}</p>
+        <p class="mb-3" style="max-width: 48rem">{{#str}}remedial_planhelp, local_quizbot{{/str}}</p>
+        {{#leftnote}}<p class="small text-muted">{{leftnote}}</p>{{/leftnote}}
+
+        <div class="local-quizbot-remedialgrid mb-3">
+            {{#groups}}
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start gap-2" style="gap: .5rem">
+                        <div>
+                            <h2 class="h5 mb-1" dir="auto">{{topic}}</h2>
+                            <div class="small text-muted">
+                                {{#material}}{{#str}}remedial_from, local_quizbot, {{material}}{{/str}}{{/material}}
+                                {{#nomaterial}}{{#str}}remedial_nomaterial, local_quizbot{{/str}}{{/nomaterial}}
+                            </div>
+                        </div>
+                        <div class="small text-muted text-end text-right text-nowrap">{{#str}}remedial_classpct, local_quizbot, {{pct}}{{/str}}</div>
+                    </div>
+                    <ul class="list-unstyled my-2">
+                        {{#students}}
+                        <li class="d-flex flex-wrap align-items-center py-2 border-top" style="gap: .5rem">
+                            <input type="checkbox" class="form-check-input position-static m-0" name="s[]" value="{{id}}" id="local-quizbot-s{{id}}" data-group="{{group}}" checked>
+                            <label for="local-quizbot-s{{id}}" class="mb-0 flex-grow-1">{{name}} <span class="local-quizbot-num local-quizbot-weaktext small">{{score}}</span></label>
+                            {{#hasothers}}
+                            <label class="small text-muted mb-0 d-flex align-items-center" style="gap: .35rem">{{#str}}remedial_moveto, local_quizbot{{/str}}
+                                <select name="m[{{id}}]" class="form-select form-select-sm custom-select custom-select-sm w-auto">
+                                    <option value="">{{#str}}remedial_thistopic, local_quizbot{{/str}}</option>
+                                    {{#others}}<option value="{{key}}">{{topic}}</option>{{/others}}
+                                </select>
+                            </label>
+                            {{/hasothers}}
+                        </li>
+                        {{/students}}
+                    </ul>
+                    {{#single}}<p class="local-quizbot-note p-2 small">{{#str}}remedial_single, local_quizbot{{/str}}</p>{{/single}}
+                    <div class="d-flex align-items-center justify-content-between" style="gap: .5rem">
+                        <label for="local-quizbot-n{{key}}" class="mb-0">{{#str}}remedial_questions, local_quizbot{{/str}}</label>
+                        <input type="number" class="form-control w-auto" id="local-quizbot-n{{key}}" name="n[{{key}}]" value="{{n}}" min="{{min}}" max="{{max}}">
+                    </div>
+                </div>
+            </div>
+            {{/groups}}
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-body">
+                <h2 class="h5">{{#str}}remedial_forall, local_quizbot{{/str}}</h2>
+                <p class="mb-2">{{#str}}remedial_easyfirst, local_quizbot{{/str}}</p>
+                <fieldset class="mb-2">
+                    <legend class="fs-6 font-size-base small text-muted mb-1" style="font-size: .9rem">{{#str}}remedial_kinds, local_quizbot{{/str}}</legend>
+                    <div class="d-flex flex-wrap" style="gap: .5rem 1.25rem">
+                        {{#kinds}}
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" name="k[]" value="{{id}}" id="local-quizbot-k{{id}}" {{#checked}}checked{{/checked}} {{#disabled}}disabled{{/disabled}}>
+                            <label class="form-check-label" for="local-quizbot-k{{id}}">{{label}}</label>
+                        </div>
+                        {{/kinds}}
+                    </div>
+                    <p class="small text-muted mt-1 mb-0">{{#str}}remedial_kindshelp, local_quizbot{{/str}}</p>
+                </fieldset>
+                <div class="d-flex flex-wrap align-items-center" style="gap: .5rem">
+                    <label for="local-quizbot-level" class="mb-0">{{#str}}level, local_quizbot{{/str}}</label>
+                    <select id="local-quizbot-level" name="level" class="form-select custom-select w-auto">
+                        {{#levels}}<option value="{{value}}" {{#selected}}selected{{/selected}}>{{label}}</option>{{/levels}}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body d-flex flex-wrap align-items-center justify-content-between" style="gap: 1rem">
+                <div>
+                    <div class="fw-bold font-weight-bold" id="local-quizbot-remedialsummary" data-template="{{summarytemplate}}" aria-live="polite">{{summary}}</div>
+                    {{#licenceleft}}<div class="small text-muted">{{licenceleft}}</div>{{/licenceleft}}
+                </div>
+                <div class="d-flex flex-wrap" style="gap: .5rem">
+                    <a href="{{cancelurl}}" class="btn btn-secondary">{{#str}}cancel{{/str}}</a>
+                    <button type="submit" name="action" value="write" class="btn btn-primary btn-lg">{{#str}}remedial_write, local_quizbot{{/str}}</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

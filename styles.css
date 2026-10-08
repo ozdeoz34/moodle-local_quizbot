@@ -1,0 +1,1029 @@
+/* Quizbot for Moodle - the look of quizbot.ai ("Marking desk") on the plugin's own pages.
+ *
+ * Every rule sits under a class of the plugin's own, so no other Moodle page changes:
+ *   .local-quizbot-desk  the frame of the plugin's pages (classes/local/page.php): paper ground, ink text, one red accent;
+ *   .local-quizbot-cta   the "Generate questions with Quizbot" button on a quiz's pages (amd/src/quizbutton.js).
+ * The fonts are in fonts/ (SIL Open Font License 1.1, see thirdpartylibs.xml): nothing is fetched from outside the site,
+ * and a browser downloads a font only for a page that uses it.
+ *
+ * Colours: ink #101c19, paper #f6f4ee, ground #f2eee4, marker #e2452f (the one accent), highlighter #f4e05a,
+ * correct #1c7a62, muted #5c6b65, hairline rgba(16, 28, 25, 0.13). Depth is a hard offset shadow, never a blur.
+ */
+
+@font-face {
+    font-family: "Instrument Sans";
+    font-style: normal;
+    font-weight: 400 600;
+    font-display: swap;
+    src: url([[font:local_quizbot|instrumentsans-400-600-latin.woff2]]) format("woff2");
+    unicode-range: u+0000-00ff, u+0131, u+0152-0153, u+02bb-02dc, u+0304-0329, u+2000-2215, u+feff-fffd;
+}
+
+@font-face {
+    font-family: "Instrument Sans";
+    font-style: normal;
+    font-weight: 400 600;
+    font-display: swap;
+    src: url([[font:local_quizbot|instrumentsans-400-600-latin-ext.woff2]]) format("woff2");
+    unicode-range: u+0100-02ba, u+02bd-02ff, u+1d00-1eff, u+2020-20c4, u+2113, u+2c60-2c7f, u+a720-a7ff;
+}
+
+@font-face {
+    font-family: "Bricolage Grotesque";
+    font-style: normal;
+    font-weight: 600 700;
+    font-display: swap;
+    src: url([[font:local_quizbot|bricolagegrotesque-600-700-latin.woff2]]) format("woff2");
+    unicode-range: u+0000-00ff, u+0131, u+0152-0153, u+02bb-02dc, u+0304-0329, u+2000-2215, u+feff-fffd;
+}
+
+@font-face {
+    font-family: "Bricolage Grotesque";
+    font-style: normal;
+    font-weight: 600 700;
+    font-display: swap;
+    src: url([[font:local_quizbot|bricolagegrotesque-600-700-latin-ext.woff2]]) format("woff2");
+    unicode-range: u+0100-02ba, u+02bd-02ff, u+1d00-1eff, u+2020-20c4, u+2113, u+2c60-2c7f, u+a720-a7ff;
+}
+
+@font-face {
+    font-family: "IBM Plex Mono";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url([[font:local_quizbot|ibmplexmono-400-latin.woff2]]) format("woff2");
+    unicode-range: u+0000-00ff, u+0131, u+0152-0153, u+02bb-02dc, u+0304-0329, u+2000-2215, u+feff-fffd;
+}
+
+@font-face {
+    font-family: "IBM Plex Mono";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url([[font:local_quizbot|ibmplexmono-400-latin-ext.woff2]]) format("woff2");
+    unicode-range: u+0100-02ba, u+02bd-02ff, u+1d00-1eff, u+2020-20c4, u+2113, u+2c60-2c7f, u+a720-a7ff;
+}
+
+@font-face {
+    font-family: "IBM Plex Mono";
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url([[font:local_quizbot|ibmplexmono-500-latin.woff2]]) format("woff2");
+    unicode-range: u+0000-00ff, u+0131, u+0152-0153, u+02bb-02dc, u+0304-0329, u+2000-2215, u+feff-fffd;
+}
+
+@font-face {
+    font-family: "IBM Plex Mono";
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url([[font:local_quizbot|ibmplexmono-500-latin-ext.woff2]]) format("woff2");
+    unicode-range: u+0100-02ba, u+02bd-02ff, u+1d00-1eff, u+2020-20c4, u+2113, u+2c60-2c7f, u+a720-a7ff;
+}
+
+/* ── the desk: the paper the plugin's pages sit on ─────────────────────────── */
+.local-quizbot-desk {
+    --qb-ink: #101c19;
+    --qb-ink-soft: #1b2b27;
+    --qb-paper: #f6f4ee;
+    --qb-ground: #f2eee4;
+    --qb-marker: #e2452f;
+    --qb-mark: #f4e05a;
+    --qb-correct: #1c7a62;
+    --qb-muted: #5c6b65;
+    --qb-rule: rgba(16, 28, 25, 0.13);
+    --qb-rule-strong: rgba(16, 28, 25, 0.28);
+    --qb-sans: "Instrument Sans", system-ui, -apple-system, "Segoe UI", "Helvetica Neue", arial, sans-serif;
+    --qb-display: "Bricolage Grotesque", "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --qb-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", "Menlo", "Consolas", monospace;
+    margin: 0 0 1.5rem;
+    padding: 26px 30px 22px;
+    border-radius: 18px;
+    background-color: var(--qb-ground);
+    background-image: url([[pix:local_quizbot|paper]]);
+    background-size: 560px 560px;
+    color: var(--qb-ink);
+    font-family: var(--qb-sans);
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.local-quizbot-desk .local-quizbot-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    color: var(--qb-muted);
+    font-family: var(--qb-mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.local-quizbot-desk .local-quizbot-brand::before {
+    content: "";
+    flex: 0 0 24px;
+    width: 24px;
+    height: 24px;
+    border: 1px solid var(--qb-rule);
+    border-radius: 50%;
+    background-color: #fff;
+    background-image: url([[pix:local_quizbot|quizbothead]]);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 19px 19px;
+}
+
+.local-quizbot-desk .local-quizbot-title {
+    margin: 0 0 18px;
+    color: var(--qb-ink);
+    font-family: var(--qb-display);
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+}
+
+.local-quizbot-desk h2,
+.local-quizbot-desk h3,
+.local-quizbot-desk .h4,
+.local-quizbot-desk .h5 {
+    color: var(--qb-ink);
+    font-family: var(--qb-display);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.local-quizbot-desk legend.h6,
+.local-quizbot-desk summary {
+    font-family: var(--qb-display);
+    font-weight: 600;
+}
+
+/* Course section names above the list of sources: small mono capitals. */
+.local-quizbot-desk h3.h6.text-uppercase {
+    font-family: var(--qb-mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+}
+
+.local-quizbot-desk .lead,
+.local-quizbot-desk .local-quizbot-qtext {
+    color: var(--qb-ink);
+    font-size: 1.06rem;
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+.local-quizbot-desk p > a:not(.btn),
+.local-quizbot-desk li > a:not(.btn):not(.nav-link) {
+    color: var(--qb-ink);
+    text-decoration: underline;
+    text-decoration-color: rgba(226, 69, 47, 0.55);
+    text-underline-offset: 3px;
+}
+
+.local-quizbot-desk p > a:not(.btn):hover,
+.local-quizbot-desk li > a:not(.btn):not(.nav-link):hover {
+    color: var(--qb-marker);
+}
+
+.local-quizbot-desk .local-quizbot-contact {
+    color: var(--qb-muted);
+}
+
+/* ── the three steps: numbered squares joined by a rule ────────────────────── */
+.local-quizbot-desk .local-quizbot-steps {
+    gap: 10px;
+}
+
+.local-quizbot-desk .local-quizbot-step {
+    gap: 10px;
+    color: var(--qb-muted);
+    font-weight: 500;
+}
+
+.local-quizbot-desk .local-quizbot-step + .local-quizbot-step::before {
+    content: "";
+    width: 28px;
+    height: 1px;
+    background-color: var(--qb-rule-strong);
+}
+
+.local-quizbot-desk .local-quizbot-stepnum {
+    display: inline-flex;
+    flex: 0 0 28px;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--qb-rule-strong);
+    border-radius: 7px;
+    background-color: #fff;
+    color: var(--qb-ink);
+    font-family: var(--qb-mono);
+    font-size: 11.5px;
+    font-weight: 500;
+}
+
+.local-quizbot-desk .local-quizbot-step.is-current {
+    color: var(--qb-ink);
+    font-weight: 600;
+}
+
+.local-quizbot-desk .local-quizbot-step.is-current .local-quizbot-stepnum {
+    border-color: var(--qb-ink);
+    background-color: var(--qb-ink);
+    color: var(--qb-paper);
+    box-shadow: 2px 2px 0 var(--qb-marker);
+}
+
+.local-quizbot-desk .local-quizbot-step.is-done {
+    color: var(--qb-ink-soft);
+}
+
+.local-quizbot-desk .local-quizbot-step.is-done .local-quizbot-stepnum {
+    border-color: var(--qb-correct);
+    color: var(--qb-correct);
+}
+
+/* ── cards: white, hairline, no blur ───────────────────────────────────────── */
+.local-quizbot-desk .card {
+    border: 1px solid var(--qb-rule);
+    border-radius: 14px;
+    background-color: #fff;
+    box-shadow: none;
+}
+
+.local-quizbot-desk .card-body {
+    padding: 22px 24px;
+}
+
+/* A question on the review page: stamped when the pointer is on it, faded when it is unticked. */
+.local-quizbot-desk .local-quizbot-qcard {
+    transition: border-color 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
+}
+
+.local-quizbot-desk .local-quizbot-qcard:hover {
+    border-color: var(--qb-ink);
+    box-shadow: 4px 4px 0 var(--qb-marker);
+}
+
+.local-quizbot-desk .local-quizbot-qcard:not(:has(input[name="q[]"]:checked)) {
+    opacity: 0.62;
+}
+
+.local-quizbot-desk .local-quizbot-note {
+    border: 1px solid var(--qb-rule);
+    border-radius: 10px;
+    background-color: var(--qb-paper);
+}
+
+.local-quizbot-desk .local-quizbot-panel {
+    border: 1px solid var(--qb-rule);
+    border-radius: 14px;
+    background-color: #fbfaf6;
+}
+
+.local-quizbot-desk .local-quizbot-list {
+    overflow: hidden;
+    border: 1px solid var(--qb-rule);
+    border-radius: 11px;
+    background-color: #fff;
+}
+
+/* A kind of question with its number box: stamped while the number is being typed. */
+.local-quizbot-desk .local-quizbot-tile {
+    border: 1px solid var(--qb-rule);
+    border-radius: 12px;
+    background-color: #fff;
+    transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.local-quizbot-desk .local-quizbot-tile:hover {
+    border-color: rgba(16, 28, 25, 0.38);
+}
+
+.local-quizbot-desk .local-quizbot-tile:focus-within {
+    border-color: var(--qb-ink);
+    box-shadow: 4px 4px 0 var(--qb-marker);
+}
+
+.local-quizbot-desk .local-quizbot-line {
+    border: 1px solid var(--qb-rule);
+    border-radius: 9px;
+    background-color: #fff;
+}
+
+.local-quizbot-desk .local-quizbot-line.is-correct {
+    border-color: var(--qb-correct);
+    background-color: rgba(28, 122, 98, 0.06);
+    font-weight: 600;
+}
+
+.local-quizbot-desk .local-quizbot-line.is-error {
+    border-color: #b8301f;
+}
+
+.local-quizbot-desk .local-quizbot-correctmark {
+    color: var(--qb-correct);
+    font-family: var(--qb-mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+/* ── sources: one row per course item, a red edge on the ticked ones ─────────── */
+.local-quizbot-desk .list-group-item {
+    border-color: var(--qb-rule);
+}
+
+.local-quizbot-desk .local-quizbot-pick {
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: background-color 120ms ease;
+}
+
+.local-quizbot-desk .local-quizbot-pick:hover {
+    background-color: #fbfaf6;
+}
+
+.local-quizbot-desk .local-quizbot-pick:has(input:checked) {
+    border-inline-start: 3px solid var(--qb-marker);
+    background-color: #fffcf2;
+}
+
+/* ── tabs: a red underline under the open one ───────────────────────────────── */
+.local-quizbot-desk .nav-tabs {
+    gap: 4px;
+    border-bottom: 1px solid var(--qb-rule);
+}
+
+.local-quizbot-desk .nav-tabs .nav-item .nav-link {
+    margin-bottom: -1px;
+    padding: 10px 14px;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    background-color: transparent;
+    color: var(--qb-muted);
+    font-weight: 600;
+}
+
+.local-quizbot-desk .nav-tabs .nav-item .nav-link:hover {
+    border-bottom-color: var(--qb-rule-strong);
+    color: var(--qb-ink);
+}
+
+.local-quizbot-desk .nav-tabs .nav-item .nav-link.active {
+    border-bottom-color: var(--qb-marker);
+    background-color: transparent;
+    color: var(--qb-ink);
+}
+
+/* ── badges: small mono capitals ──────────────────────────────────────────── */
+.local-quizbot-desk .badge {
+    padding: 4px 7px;
+    border-radius: 6px;
+    font-family: var(--qb-mono);
+    font-size: 10.5px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.local-quizbot-desk .badge.local-quizbot-tag {
+    border: 1px solid rgba(16, 28, 25, 0.3);
+    background-color: #fff;
+    color: var(--qb-ink);
+}
+
+.local-quizbot-desk .badge.local-quizbot-skill {
+    border: 1px solid rgba(16, 28, 25, 0.18);
+    background-color: var(--qb-mark);
+    color: var(--qb-ink);
+}
+
+.local-quizbot-desk .badge.local-quizbot-flag {
+    border: 1px dashed rgba(16, 28, 25, 0.35);
+    background-color: var(--qb-paper);
+    color: var(--qb-ink-soft);
+}
+
+.local-quizbot-desk .badge.local-quizbot-count {
+    border-radius: 999px;
+    background-color: var(--qb-ink);
+    color: var(--qb-paper);
+}
+
+.local-quizbot-desk .badge.local-quizbot-state {
+    border: 1px solid transparent;
+}
+
+.local-quizbot-desk .badge.local-quizbot-state.is-done {
+    background-color: var(--qb-correct);
+    color: #fff;
+}
+
+.local-quizbot-desk .badge.local-quizbot-state.is-now {
+    background-color: var(--qb-ink);
+    color: var(--qb-paper);
+}
+
+.local-quizbot-desk .badge.local-quizbot-state.is-problem {
+    background-color: var(--qb-marker);
+    color: #fff;
+}
+
+.local-quizbot-desk .badge.local-quizbot-state.is-waiting {
+    border-color: var(--qb-rule-strong);
+    background-color: #fff;
+    color: var(--qb-muted);
+}
+
+/* ── form fields ─────────────────────────────────────────────────────────── */
+.local-quizbot-desk .form-control,
+.local-quizbot-desk .form-select,
+.local-quizbot-desk .custom-select {
+    min-height: 42px;
+    border: 1px solid rgba(16, 28, 25, 0.2);
+    border-radius: 9px;
+    background-color: #fff;
+    color: var(--qb-ink);
+    font-family: var(--qb-sans);
+}
+
+.local-quizbot-desk .form-control:focus,
+.local-quizbot-desk .form-select:focus,
+.local-quizbot-desk .custom-select:focus {
+    border-color: var(--qb-ink);
+    outline: 0;
+    box-shadow: 0 0 0 3px rgba(226, 69, 47, 0.2);
+}
+
+.local-quizbot-desk .form-control.is-invalid {
+    border-color: #b8301f;
+}
+
+.local-quizbot-desk input[type="number"] {
+    font-family: var(--qb-mono);
+    font-weight: 500;
+}
+
+/* Ticks in ink, the chosen answer of a radio group in red (Bootstrap 5 draws them; Bootstrap 4 uses the browser's). */
+.local-quizbot-desk .form-check-input {
+    accent-color: var(--qb-ink);
+}
+
+.local-quizbot-desk .form-check-input:checked {
+    border-color: var(--qb-ink);
+    background-color: var(--qb-ink);
+}
+
+.local-quizbot-desk .form-check-input[type="radio"] {
+    accent-color: var(--qb-marker);
+}
+
+.local-quizbot-desk .form-check-input[type="radio"]:checked {
+    border-color: var(--qb-marker);
+    background-color: var(--qb-marker);
+}
+
+.local-quizbot-desk .form-check-input:focus {
+    border-color: var(--qb-ink);
+    box-shadow: 0 0 0 3px rgba(226, 69, 47, 0.2);
+}
+
+/* ── buttons: ink with a red stamp; quiet ones are hairline outlines ─────────── */
+.local-quizbot-desk .btn {
+    border-radius: 9px;
+    font-family: var(--qb-sans);
+    font-weight: 600;
+    transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease, background-color 120ms ease;
+}
+
+.local-quizbot-desk .btn-lg {
+    padding: 11px 20px;
+    font-size: 1rem;
+}
+
+.local-quizbot-desk .btn.btn-primary,
+.local-quizbot-cta.btn.btn-primary {
+    --bs-btn-bg: #101c19;
+    --bs-btn-border-color: #101c19;
+    --bs-btn-color: #f6f4ee;
+    --bs-btn-hover-bg: #101c19;
+    --bs-btn-hover-border-color: #101c19;
+    --bs-btn-hover-color: #f6f4ee;
+    --bs-btn-active-bg: #101c19;
+    --bs-btn-active-border-color: #101c19;
+    --bs-btn-active-color: #f6f4ee;
+    --bs-btn-disabled-bg: #101c19;
+    --bs-btn-disabled-border-color: #101c19;
+    --bs-btn-disabled-color: #f6f4ee;
+    border: 1px solid #101c19;
+    border-radius: 9px;
+    background-color: #101c19;
+    color: #f6f4ee;
+    box-shadow: 3px 3px 0 #e2452f;
+}
+
+.local-quizbot-desk .btn.btn-primary:not(:disabled):hover,
+.local-quizbot-desk .btn.btn-primary:not(:disabled):focus,
+.local-quizbot-cta.btn.btn-primary:hover,
+.local-quizbot-cta.btn.btn-primary:focus {
+    border-color: #101c19;
+    background-color: #101c19;
+    color: #f6f4ee;
+    box-shadow: 4px 4px 0 #e2452f;
+    transform: translate(-1px, -1px);
+}
+
+.local-quizbot-desk .btn.btn-primary:not(:disabled):not(.disabled):active,
+.local-quizbot-cta.btn.btn-primary:not(:disabled):not(.disabled):active {
+    border-color: #101c19;
+    background-color: #101c19;
+    color: #f6f4ee;
+    box-shadow: 1px 1px 0 #e2452f;
+    transform: translate(1px, 1px);
+}
+
+.local-quizbot-desk .btn.btn-primary:focus-visible,
+.local-quizbot-cta.btn.btn-primary:focus-visible {
+    outline: 2px solid #e2452f;
+    outline-offset: 3px;
+}
+
+.local-quizbot-desk .btn.btn-primary:disabled,
+.local-quizbot-desk .btn.btn-primary.disabled {
+    opacity: 0.5;
+    box-shadow: none;
+    transform: none;
+}
+
+.local-quizbot-cta.btn.btn-primary {
+    font-family: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-weight: 600;
+}
+
+.local-quizbot-desk .btn.btn-secondary,
+.local-quizbot-desk .btn.btn-outline-secondary,
+.local-quizbot-desk .btn.btn-outline-primary {
+    --bs-btn-bg: #fff;
+    --bs-btn-border-color: rgba(16, 28, 25, 0.28);
+    --bs-btn-color: #101c19;
+    --bs-btn-hover-bg: #fff;
+    --bs-btn-hover-border-color: #101c19;
+    --bs-btn-hover-color: #101c19;
+    --bs-btn-active-bg: #f6f4ee;
+    --bs-btn-active-border-color: #101c19;
+    --bs-btn-active-color: #101c19;
+    border: 1px solid rgba(16, 28, 25, 0.28);
+    background-color: #fff;
+    color: #101c19;
+    box-shadow: none;
+}
+
+.local-quizbot-desk .btn.btn-secondary:not(:disabled):hover,
+.local-quizbot-desk .btn.btn-outline-secondary:not(:disabled):hover,
+.local-quizbot-desk .btn.btn-outline-primary:not(:disabled):hover,
+.local-quizbot-desk .btn.btn-secondary:not(:disabled):focus,
+.local-quizbot-desk .btn.btn-outline-secondary:not(:disabled):focus,
+.local-quizbot-desk .btn.btn-outline-primary:not(:disabled):focus {
+    border-color: #101c19;
+    background-color: #fff;
+    color: #101c19;
+    box-shadow: 2px 2px 0 rgba(16, 28, 25, 0.12);
+}
+
+.local-quizbot-desk .btn.btn-secondary:not(:disabled):not(.disabled):active,
+.local-quizbot-desk .btn.btn-outline-secondary:not(:disabled):not(.disabled):active,
+.local-quizbot-desk .btn.btn-outline-primary:not(:disabled):not(.disabled):active {
+    border-color: #101c19;
+    background-color: #f6f4ee;
+    color: #101c19;
+    box-shadow: none;
+}
+
+.local-quizbot-desk .btn.btn-link {
+    --bs-btn-color: #1b2b27;
+    --bs-btn-hover-color: #e2452f;
+    color: #1b2b27;
+    text-decoration: underline;
+    text-decoration-color: rgba(16, 28, 25, 0.28);
+    text-underline-offset: 3px;
+}
+
+.local-quizbot-desk .btn.btn-link:hover,
+.local-quizbot-desk .btn.btn-link:focus {
+    color: #e2452f;
+    text-decoration-color: #e2452f;
+}
+
+/* ── the skill buttons on the review page: answer bubbles, the chosen one filled red ── */
+.local-quizbot-desk #local-quizbot-skillchips .btn {
+    position: relative;
+    padding: 6px 14px;
+    padding-inline-start: 34px;
+    border: 1px solid var(--qb-rule);
+    border-radius: 11px;
+    background-color: #fff;
+    color: var(--qb-ink);
+    font-weight: 500;
+    box-shadow: none;
+}
+
+.local-quizbot-desk #local-quizbot-skillchips .btn::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    inset-inline-start: 13px;
+    width: 13px;
+    height: 13px;
+    border: 1.5px solid var(--qb-rule-strong);
+    border-radius: 50%;
+    transform: translateY(-50%);
+}
+
+.local-quizbot-desk #local-quizbot-skillchips .btn:hover {
+    border-color: rgba(16, 28, 25, 0.38);
+}
+
+.local-quizbot-desk #local-quizbot-skillchips .btn[aria-pressed="true"] {
+    border: 1.5px solid var(--qb-ink);
+    background-color: #fff;
+    color: var(--qb-ink);
+    font-weight: 600;
+}
+
+.local-quizbot-desk #local-quizbot-skillchips .btn[aria-pressed="true"]::before {
+    border-color: var(--qb-marker);
+    background-color: var(--qb-marker);
+    box-shadow: inset 0 0 0 2px #fff;
+}
+
+/* ── tables: hairlines, mono figures ──────────────────────────────────────── */
+.local-quizbot-desk .table {
+    --bs-table-bg: transparent;
+    color: var(--qb-ink);
+}
+
+.local-quizbot-desk .table th {
+    color: var(--qb-muted);
+    font-family: var(--qb-mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.local-quizbot-desk .table th[scope="row"] {
+    color: var(--qb-ink);
+    font-family: var(--qb-sans);
+    font-size: inherit;
+    letter-spacing: normal;
+    text-transform: none;
+}
+
+.local-quizbot-desk #local-quizbot-bloomtable td,
+.local-quizbot-desk .local-quizbot-num {
+    font-family: var(--qb-mono);
+    font-variant-numeric: tabular-nums;
+}
+
+.local-quizbot-desk .table th,
+.local-quizbot-desk .table td {
+    border-color: var(--qb-rule);
+}
+
+.local-quizbot-desk .generaltable {
+    overflow: hidden;
+    margin-bottom: 12px;
+    border: 1px solid var(--qb-rule);
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 12px;
+    background-color: #fff;
+}
+
+.local-quizbot-desk .generaltable td {
+    padding: 11px 16px;
+    border-width: 1px 0 0;
+    border-style: solid;
+    border-color: var(--qb-rule);
+    background-color: transparent;
+}
+
+.local-quizbot-desk .generaltable tr:first-child td {
+    border-top: 0;
+}
+
+.local-quizbot-desk .generaltable td:first-child {
+    color: var(--qb-muted);
+}
+
+.local-quizbot-desk .generaltable td + td {
+    font-weight: 600;
+}
+
+.local-quizbot-desk #local-quizbot-total {
+    font-family: var(--qb-mono);
+    font-size: 1.15rem;
+}
+
+/* ── Quizbot Analysis (1.1): figures, bars, notes ──────────────────────────── */
+.local-quizbot-desk .local-quizbot-updated {
+    color: var(--qb-muted);
+    font-family: var(--qb-mono);
+    font-size: 11.5px;
+}
+
+.local-quizbot-desk .local-quizbot-tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 12px;
+}
+
+.local-quizbot-desk .local-quizbot-figure {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 14px 16px;
+}
+
+.local-quizbot-desk .local-quizbot-figurelabel {
+    color: var(--qb-muted);
+    font-size: 0.85rem;
+}
+
+.local-quizbot-desk .local-quizbot-figurevalue {
+    color: var(--qb-ink);
+    font-family: var(--qb-mono);
+    font-size: 1.9rem;
+    font-weight: 500;
+    line-height: 1.15;
+    font-variant-numeric: tabular-nums;
+}
+
+.local-quizbot-desk .local-quizbot-figureof {
+    color: var(--qb-muted);
+    font-family: var(--qb-sans);
+    font-size: 0.9rem;
+    font-weight: 400;
+}
+
+.local-quizbot-desk .local-quizbot-figure.is-warn .local-quizbot-figurevalue {
+    color: #b8301f;
+}
+
+.local-quizbot-desk .local-quizbot-histogram {
+    display: flex;
+    gap: 10px;
+    height: 170px;
+    border-bottom: 1px solid var(--qb-rule-strong);
+}
+
+.local-quizbot-desk .local-quizbot-histcol {
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+}
+
+.local-quizbot-desk .local-quizbot-histn {
+    font-family: var(--qb-mono);
+    font-size: 12px;
+}
+
+.local-quizbot-desk .local-quizbot-histbar {
+    display: block;
+    width: 100%;
+    max-width: 64px;
+    border-radius: 6px 6px 0 0;
+    background-color: var(--qb-ink);
+}
+
+.local-quizbot-desk .local-quizbot-histlabels {
+    display: flex;
+    gap: 10px;
+    padding-top: 6px;
+}
+
+.local-quizbot-desk .local-quizbot-histlabels span {
+    flex: 1 1 0;
+    color: var(--qb-muted);
+    font-family: var(--qb-mono);
+    font-size: 11px;
+    text-align: center;
+}
+
+.local-quizbot-desk .local-quizbot-track {
+    display: block;
+    overflow: hidden;
+    height: 8px;
+    margin-top: 4px;
+    border-radius: 999px;
+    background-color: rgba(16, 28, 25, 0.08);
+}
+
+.local-quizbot-desk .local-quizbot-track.is-small {
+    display: inline-block;
+    width: 64px;
+    height: 6px;
+    margin-top: 0;
+    margin-inline-start: 6px;
+    vertical-align: middle;
+}
+
+.local-quizbot-desk .local-quizbot-fill {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    background-color: var(--qb-ink);
+}
+
+.local-quizbot-desk .local-quizbot-histbar.is-weak,
+.local-quizbot-desk .local-quizbot-fill.is-weak,
+.local-quizbot-desk .local-quizbot-key.is-weak {
+    background-color: var(--qb-marker);
+}
+
+.local-quizbot-desk .local-quizbot-fill.is-few {
+    opacity: 0.45;
+}
+
+.local-quizbot-desk .local-quizbot-key {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    background-color: var(--qb-ink);
+    vertical-align: -1px;
+}
+
+.local-quizbot-desk .local-quizbot-pctcell {
+    white-space: nowrap;
+}
+
+.local-quizbot-desk .local-quizbot-qtable td {
+    vertical-align: top;
+}
+
+.local-quizbot-desk .local-quizbot-qnote {
+    display: inline-block;
+    margin: 6px 6px 0 0;
+    padding: 2px 8px;
+    border: 1px solid rgba(212, 184, 41, 0.55);
+    border-radius: 6px;
+    background-color: #fcf6d4;
+    color: var(--qb-ink);
+    font-size: 0.8rem;
+}
+
+.local-quizbot-desk .local-quizbot-weaktext {
+    color: #b8301f;
+}
+
+.local-quizbot-desk .local-quizbot-verdict {
+    font-size: 0.88rem;
+}
+
+/* ── a student's own results (1.1): the card on a quiz review page, "My progress" ─ */
+.local-quizbot-desk.local-quizbot-card {
+    padding: 18px 20px;
+    border-radius: 14px;
+}
+
+.local-quizbot-desk .local-quizbot-cardtopics {
+    display: grid;
+    gap: 10px;
+}
+
+.local-quizbot-desk .local-quizbot-word {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 999px;
+    font-family: var(--qb-mono);
+    font-size: 10.5px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    vertical-align: 1px;
+}
+
+.local-quizbot-desk .local-quizbot-word.is-strong {
+    background-color: rgba(28, 122, 98, 0.12);
+    color: var(--qb-correct);
+}
+
+.local-quizbot-desk .local-quizbot-word.is-getting {
+    background-color: rgba(16, 28, 25, 0.07);
+    color: var(--qb-ink-soft);
+}
+
+.local-quizbot-desk .local-quizbot-word.is-revise {
+    background-color: rgba(226, 69, 47, 0.12);
+    color: #b8301f;
+}
+
+.local-quizbot-desk .local-quizbot-figuretext {
+    color: var(--qb-ink);
+    font-family: var(--qb-display);
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.25;
+}
+
+.local-quizbot-desk .local-quizbot-figure.is-warn .local-quizbot-figuretext {
+    color: #b8301f;
+}
+
+/* ── messages: white with a coloured edge ─────────────────────────────────── */
+.local-quizbot-desk .alert {
+    border: 1px solid var(--qb-rule);
+    border-inline-start-width: 3px;
+    border-radius: 10px;
+    color: var(--qb-ink);
+}
+
+.local-quizbot-desk .alert-warning {
+    border-inline-start-color: #d4b829;
+    background-color: #fcf6d4;
+}
+
+.local-quizbot-desk .alert-danger {
+    border-inline-start-color: var(--qb-marker);
+    background-color: #fdeeeb;
+}
+
+.local-quizbot-desk .alert-success {
+    border-inline-start-color: var(--qb-correct);
+    background-color: #e9f3ef;
+}
+
+.local-quizbot-desk .alert-info {
+    border-inline-start-color: var(--qb-ink);
+    background-color: var(--qb-paper);
+}
+
+/* ── the quiz's Questions page: marks that do not add up to the maximum grade (amd/src/marks.js) ── */
+.local-quizbot-marksdiffer {
+    padding: 2px 8px;
+    border: 1px solid #e2452f;
+    border-radius: 6px;
+    background-color: #fdeeeb;
+    color: #b8301f;
+    font-weight: 600;
+}
+
+.local-quizbot-marksnote {
+    max-width: 36rem;
+    margin: 0 0 .75rem auto;
+    padding: .5rem .75rem;
+    border: 1px solid #e2452f;
+    border-radius: 8px;
+    background-color: #fdeeeb;
+    color: #5c1a10;
+    font-size: .9rem;
+}
+
+/* ── remedial quizzes ────────────────────────────────────────────────────── */
+.local-quizbot-desk .local-quizbot-remedialgrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: 1rem;
+}
+
+.local-quizbot-desk .local-quizbot-mark {
+    border: 1px solid #d4b829;
+    border-radius: 999px;
+    background-color: #fcf6d4;
+}
+
+/* ── phones ──────────────────────────────────────────────────────────────── */
+@media (max-width: 575.98px) {
+    .local-quizbot-desk {
+        padding: 16px 12px;
+        border-radius: 12px;
+    }
+
+    .local-quizbot-desk .local-quizbot-title {
+        font-size: 1.5rem;
+    }
+
+    .local-quizbot-desk .card-body {
+        padding: 16px;
+    }
+
+    /* The steps may wrap to a second line here, so no joining rule. */
+    .local-quizbot-desk .local-quizbot-step + .local-quizbot-step::before {
+        display: none;
+    }
+}

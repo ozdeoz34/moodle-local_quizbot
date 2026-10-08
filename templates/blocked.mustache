@@ -1,0 +1,58 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_quizbot/blocked
+
+    Shown instead of the wizard when the licence cannot be used: why, and what to do. A teacher is told to ask the
+    site administrator; the administrator gets the way to put it right. When the licence is a teacher package whose
+    questions or teacher places are used up, everybody is shown how to buy another one ("buymore"): it is added to
+    the same licence at once.
+
+    Example context (json):
+    {
+        "heading": "Quizbot's licence has ended", "text": "The licence ended on 30 September 2027.",
+        "detail": "", "isadmin": true, "settingsurl": "#", "licenceurl": "#", "buyurl": "#", "buymore": true,
+        "quizurl": "#"
+    }
+}}
+<div class="local-quizbot">
+    <div class="card mx-auto" style="max-width: 46rem">
+        <div class="card-body">
+            <h2 class="h4">{{heading}}</h2>
+            <p>{{text}}</p>
+            {{#detail}}<p class="small text-muted">{{detail}}</p>{{/detail}}
+            {{#buymore}}
+            <p class="mb-1"><a href="{{buyurl}}" class="btn btn-primary" target="_blank" rel="noopener">{{#str}}blocked_buymore, local_quizbot{{/str}}</a></p>
+            <p class="small text-muted">{{#str}}blocked_buymore_note, local_quizbot{{/str}}</p>
+            {{/buymore}}
+            {{#isadmin}}
+            <div class="local-quizbot-note p-3 mb-3">
+                <div class="fw-bold font-weight-bold">{{#str}}blocked_admin, local_quizbot{{/str}}</div>
+                <ul class="mb-0">
+                    <li><a href="{{settingsurl}}">{{#str}}blocked_settings, local_quizbot{{/str}}</a></li>
+                    <li><a href="{{licenceurl}}">{{#str}}licencestatus, local_quizbot{{/str}}</a></li>
+                    {{#buyurl}}<li><a href="{{buyurl}}" target="_blank" rel="noopener">{{#str}}blocked_buy, local_quizbot{{/str}}</a></li>{{/buyurl}}
+                </ul>
+            </div>
+            {{/isadmin}}
+            {{^isadmin}}
+            <p class="fw-bold font-weight-bold">{{#str}}blocked_teacher, local_quizbot{{/str}}</p>
+            {{/isadmin}}
+            <a href="{{quizurl}}" class="btn btn-secondary">{{#str}}backtoquiz, local_quizbot{{/str}}</a>
+        </div>
+    </div>
+</div>

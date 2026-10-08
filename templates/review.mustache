@@ -1,0 +1,157 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_quizbot/review
+
+    Step 3 of the wizard: the questions Quizbot wrote, before any of them is in the quiz. The teacher unticks the
+    ones not wanted, edits a question or has it rewritten, and adds the rest - and may put files brought in from
+    outside the course into it. Plain form buttons: it all works without script; local_quizbot/review only shows
+    that a rewrite or the adding is under way. The same page checks the questions of remedial quizzes (remedial.php):
+    then one tab per quiz, and "Next" instead of adding them.
+
+    Example context (json):
+    {
+        "actionurl": "#", "sesskey": "abc", "cmid": 14, "count": 1, "hasquestions": true,
+        "questions": [{"index": 0, "number": 1, "typelabel": "Multiple choice", "skill": "Remember", "skillid": "remember", "source": "Light", "text": "What is \\(E = mc^2\\)?",
+            "lines": [{"text": "A wave", "correct": true, "note": "Yes."}, {"text": "A liquid", "correct": false, "note": ""}],
+            "feedback": ""}],
+        "askedtext": "As you asked: Remember 1", "hasmissed": false, "missed": [], "haschips": false, "chips": [],
+        "notes": [], "hasnotes": false, "quizname": "Quiz 1", "keeptext": "This quiz only",
+        "steps": [{"number": 3, "label": "Review and save", "done": false, "current": true}]
+    }
+}}
+<div class="local-quizbot">
+    {{> local_quizbot/steps }}
+    <div class="mx-auto" style="max-width: 56rem">
+        {{#hasnotes}}
+        <div class="alert alert-warning">
+            <div class="fw-bold font-weight-bold">{{#str}}review_unread, local_quizbot{{/str}}</div>
+            <ul class="mb-0">
+                {{#notes}}<li><bdi>{{name}}</bdi>: {{note}}</li>{{/notes}}
+            </ul>
+        </div>
+        {{/hasnotes}}
+
+        <form method="post" action="{{actionurl}}" id="local-quizbot-review">
+            <input type="hidden" name="sesskey" value="{{sesskey}}">
+            <input type="hidden" name="cmid" value="{{cmid}}">
+            <input type="hidden" name="step" value="review">
+            {{#hidden}}<input type="hidden" name="{{name}}" value="{{value}}">{{/hidden}}
+
+            {{#hastabs}}
+            <div class="d-flex flex-wrap gap-2 mb-3" style="gap: .5rem">
+                {{#tabs}}
+                <button type="submit" name="action" value="tab-{{id}}" class="btn {{#current}}btn-dark{{/current}}{{^current}}btn-outline-secondary{{/current}}" aria-pressed="{{#current}}true{{/current}}{{^current}}false{{/current}}"><bdi>{{name}}</bdi> <span class="small">· {{note}}</span></button>
+                {{/tabs}}
+            </div>
+            {{#tabnote}}<p class="mb-3">{{tabnote}}</p>{{/tabnote}}
+            {{/hastabs}}
+
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h2 class="h4">{{#str}}review_heading, local_quizbot, {{count}}{{/str}}</h2>
+                    <p class="text-muted mb-0">{{#str}}review_help, local_quizbot{{/str}}</p>
+                    {{#askedtext}}<p class="local-quizbot-note p-2 mt-3 mb-0">{{askedtext}}</p>{{/askedtext}}
+                    {{#hasmissed}}
+                    <div class="alert alert-warning mt-2 mb-0 py-2">
+                        {{#missed}}<div>{{text}}</div>{{/missed}}
+                    </div>
+                    {{/hasmissed}}
+                    {{#haschips}}
+                    <div class="d-flex flex-wrap gap-2 mt-3" style="gap: .5rem" role="group" aria-label="{{#str}}bloomfilter, local_quizbot{{/str}}" id="local-quizbot-skillchips" hidden>
+                        <button type="button" class="btn btn-sm btn-dark" data-skill="" aria-pressed="true">{{#str}}bloomall, local_quizbot, {{count}}{{/str}}</button>
+                        {{#chips}}<button type="button" class="btn btn-sm btn-outline-secondary" data-skill="{{id}}" aria-pressed="false">{{label}} {{n}}</button>{{/chips}}
+                    </div>
+                    {{/haschips}}
+                </div>
+            </div>
+
+            {{#questions}}
+            <div class="card mb-3 local-quizbot-qcard" id="local-quizbot-card{{index}}" data-skill="{{skillid}}">
+                <div class="card-body">
+                    <div class="d-flex flex-wrap align-items-center gap-3 mb-2" style="gap: 1rem">
+                        <div class="form-check mb-0">
+                            <input type="checkbox" class="form-check-input" id="local-quizbot-q{{index}}" name="q[]" value="{{index}}" {{#ticked}}checked{{/ticked}}>
+                            <label class="form-check-label fw-bold font-weight-bold" for="local-quizbot-q{{index}}">{{#str}}review_question, local_quizbot, {{number}}{{/str}}</label>
+                        </div>
+                        <span class="badge local-quizbot-tag">{{typelabel}}</span>
+                        {{#skill}}<span class="badge local-quizbot-skill" title="{{#str}}bloomlabel, local_quizbot{{/str}}">{{skill}}</span>{{/skill}}
+                        {{#edited}}<span class="badge local-quizbot-flag">{{#str}}review_edited, local_quizbot{{/str}}</span>{{/edited}}
+                        {{#rewritten}}<span class="badge local-quizbot-flag">{{#str}}review_rewritten, local_quizbot{{/str}}</span>{{/rewritten}}
+                        {{#source}}<span class="small text-muted">{{#str}}review_from, local_quizbot{{/str}} <bdi>{{source}}</bdi></span>{{/source}}
+                    </div>
+                    <p class="lead local-quizbot-qtext mb-2" dir="auto">{{{text}}}</p>
+                    <ul class="list-unstyled mb-2">
+                        {{#lines}}
+                        <li class="local-quizbot-line p-2 mb-1 d-flex flex-wrap justify-content-between gap-2 {{#correct}}is-correct{{/correct}}" style="gap: .5rem">
+                            <span dir="auto">{{{text}}}{{#note}}<span class="d-block small text-muted fw-normal font-weight-normal" dir="auto">{{{note}}}</span>{{/note}}</span>
+                            {{#correct}}<span class="local-quizbot-correctmark text-nowrap">&#10003; {{#str}}review_correct, local_quizbot{{/str}}</span>{{/correct}}
+                        </li>
+                        {{/lines}}
+                    </ul>
+                    {{#graderinfo}}<p class="small mb-1"><span class="fw-bold font-weight-bold">{{#str}}review_marking, local_quizbot{{/str}}</span> <bdi>{{{graderinfo}}}</bdi></p>{{/graderinfo}}
+                    {{#feedback}}<p class="small text-muted mb-0"><span class="fw-bold font-weight-bold">{{#str}}review_feedback, local_quizbot{{/str}}</span> <bdi>{{{feedback}}}</bdi></p>{{/feedback}}
+                    <div class="d-flex flex-wrap gap-2 mt-3 pt-2 border-top" style="gap: .5rem">
+                        <button type="submit" name="action" value="edit-{{index}}" class="btn btn-sm btn-outline-secondary">{{#str}}review_edit, local_quizbot{{/str}}</button>
+                        <button type="submit" name="action" value="rewrite-{{index}}" class="btn btn-sm btn-outline-secondary" data-busy="{{#str}}review_rewriting, local_quizbot{{/str}}">{{#str}}review_rewrite, local_quizbot{{/str}}</button>
+                    </div>
+                </div>
+            </div>
+            {{/questions}}
+
+            {{#hasfiles}}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="fw-bold font-weight-bold mb-1">{{#str}}review_files, local_quizbot{{/str}}</div>
+                    <p class="small text-muted">{{#str}}review_fileshelp, local_quizbot{{/str}}</p>
+                    {{#files}}
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="local-quizbot-file{{id}}" name="addfile[]" value="{{id}}">
+                        <label class="form-check-label" for="local-quizbot-file{{id}}"><bdi>{{name}}</bdi> <span class="small text-muted">({{size}})</span></label>
+                    </div>
+                    {{/files}}
+                </div>
+            </div>
+            {{/hasfiles}}
+
+            <div class="card">
+                <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3" style="gap: 1rem">
+                    {{^remedial}}
+                    <div>
+                        <div class="fw-bold font-weight-bold">{{#str}}review_goes, local_quizbot, {{quizname}}{{/str}}</div>
+                        <div class="small text-muted">{{#str}}review_kept, local_quizbot{{/str}} {{keeptext}}. {{#str}}review_counted, local_quizbot{{/str}}</div>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2" style="gap: .5rem">
+                        <button type="submit" name="action" value="discard" class="btn btn-secondary">{{#str}}review_discard, local_quizbot{{/str}}</button>
+                        {{#hasquestions}}<button type="submit" name="action" value="save" class="btn btn-primary btn-lg" data-busy="{{#str}}review_adding, local_quizbot{{/str}}">{{#str}}review_add, local_quizbot{{/str}}</button>{{/hasquestions}}
+                    </div>
+                    {{/remedial}}
+                    {{#remedial}}
+                    <div>
+                        <div class="fw-bold font-weight-bold">{{remedialtotal}}</div>
+                        <div class="small text-muted">{{#str}}remedial_reviewnote, local_quizbot{{/str}}</div>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2" style="gap: .5rem">
+                        <button type="submit" name="action" value="discard" class="btn btn-secondary">{{#str}}remedial_discard, local_quizbot{{/str}}</button>
+                        <button type="submit" name="action" value="next" class="btn btn-primary btn-lg">{{#str}}remedial_next, local_quizbot{{/str}}</button>
+                    </div>
+                    {{/remedial}}
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

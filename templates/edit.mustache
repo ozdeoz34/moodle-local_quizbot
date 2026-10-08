@@ -1,0 +1,157 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_quizbot/edit
+
+    Editing one question on the review page, before it is in the quiz. A plain form: no script needed, any theme.
+
+    Example context (json):
+    {
+        "actionurl": "#", "sesskey": "abc", "cmid": 14, "index": 0, "number": 1, "typelabel": "Multiple choice",
+        "source": "Light", "text": "What is light?", "feedback": "", "ismultichoice": true,
+        "options": [{"i": 0, "n": 1, "text": "A wave", "note": "", "correct": true}],
+        "skills": [{"value": "understand", "label": "Understand", "selected": true}],
+        "errors": [], "haserrors": false,
+        "steps": [{"number": 3, "label": "Review and save", "done": false, "current": true}]
+    }
+}}
+<div class="local-quizbot">
+    {{> local_quizbot/steps }}
+    <div class="mx-auto" style="max-width: 56rem">
+        <form method="post" action="{{actionurl}}" id="local-quizbot-edit">
+            <input type="hidden" name="sesskey" value="{{sesskey}}">
+            <input type="hidden" name="cmid" value="{{cmid}}">
+            <input type="hidden" name="step" value="edit">
+            <input type="hidden" name="qi" value="{{index}}">
+            {{#hidden}}<input type="hidden" name="{{name}}" value="{{value}}">{{/hidden}}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h2 class="h4">{{#str}}edit_heading, local_quizbot, {{number}}{{/str}}</h2>
+                    <p class="small text-muted">{{typelabel}}{{#source}} · {{#str}}review_from, local_quizbot{{/str}} <bdi>{{source}}</bdi>{{/source}}</p>
+
+                    {{#haserrors}}
+                    <div class="alert alert-danger" role="alert">
+                        <div class="fw-bold font-weight-bold">{{#str}}edit_cannotsave, local_quizbot{{/str}}</div>
+                        <ul class="mb-0">{{#errors}}<li>{{.}}</li>{{/errors}}</ul>
+                    </div>
+                    {{/haserrors}}
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold font-weight-bold" for="local-quizbot-text">{{#ismatch}}{{#str}}edit_instruction, local_quizbot{{/str}}{{/ismatch}}{{^ismatch}}{{#str}}edit_question, local_quizbot{{/str}}{{/ismatch}}</label>
+                        <textarea class="form-control {{#err_text}}is-invalid{{/err_text}}" id="local-quizbot-text" name="text" dir="auto" rows="3" maxlength="2000">{{text}}</textarea>
+                        <div class="small text-muted mt-1">{{#str}}edit_mathhelp, local_quizbot{{/str}}</div>
+                    </div>
+
+                    {{#ismultichoice}}
+                    <fieldset class="mb-3">
+                        <legend class="h6 fw-bold font-weight-bold">{{#str}}edit_options, local_quizbot{{/str}}</legend>
+                        {{#options}}
+                        <div class="local-quizbot-line p-2 mb-2 {{#err_options}}is-error{{/err_options}}">
+                            <div class="d-flex flex-wrap align-items-center gap-2 mb-1" style="gap: .5rem">
+                                <span class="fw-bold font-weight-bold">{{#str}}edit_option, local_quizbot, {{n}}{{/str}}</span>
+                                <div class="form-check mb-0">
+                                    <input type="radio" class="form-check-input" name="correct" value="{{i}}" id="local-quizbot-correct{{i}}" {{#correct}}checked{{/correct}}>
+                                    <label class="form-check-label" for="local-quizbot-correct{{i}}">{{#str}}edit_thecorrect, local_quizbot{{/str}}</label>
+                                </div>
+                            </div>
+                            <input type="text" class="form-control mb-1" name="opt[{{i}}]" dir="auto" value="{{text}}" maxlength="300" aria-label="{{#str}}edit_option, local_quizbot, {{n}}{{/str}}">
+                            <input type="text" class="form-control form-control-sm" name="optfb[{{i}}]" dir="auto" value="{{note}}" maxlength="300" placeholder="{{#str}}edit_optionnote, local_quizbot{{/str}}" aria-label="{{#str}}edit_optionnote, local_quizbot{{/str}}">
+                        </div>
+                        {{/options}}
+                    </fieldset>
+                    {{/ismultichoice}}
+
+                    {{#istruefalse}}
+                    <fieldset class="mb-3">
+                        <legend class="h6 fw-bold font-weight-bold">{{#str}}edit_statementis, local_quizbot{{/str}}</legend>
+                        <div class="form-check form-check-inline">
+                            <input type="radio" class="form-check-input" name="answer" value="true" id="local-quizbot-true" {{#istrue}}checked{{/istrue}}>
+                            <label class="form-check-label" for="local-quizbot-true">{{#str}}true, qtype_truefalse{{/str}}</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input type="radio" class="form-check-input" name="answer" value="false" id="local-quizbot-false" {{#isfalse}}checked{{/isfalse}}>
+                            <label class="form-check-label" for="local-quizbot-false">{{#str}}false, qtype_truefalse{{/str}}</label>
+                        </div>
+                    </fieldset>
+                    {{/istruefalse}}
+
+                    {{#isshortanswer}}
+                    <fieldset class="mb-3">
+                        <legend class="h6 fw-bold font-weight-bold">{{#str}}edit_answers, local_quizbot{{/str}}</legend>
+                        <p class="small text-muted">{{#str}}edit_answershelp, local_quizbot{{/str}}</p>
+                        {{#answers}}<input type="text" class="form-control mb-1 {{#err_answers}}is-invalid{{/err_answers}}" name="ans[{{i}}]" dir="auto" value="{{text}}" maxlength="80" aria-label="{{#str}}edit_answer, local_quizbot, {{n}}{{/str}}">{{/answers}}
+                    </fieldset>
+                    {{/isshortanswer}}
+
+                    {{#isnumerical}}
+                    <div class="row mb-3">
+                        <div class="col-sm-6">
+                            <label class="form-label fw-bold font-weight-bold" for="local-quizbot-answer">{{#str}}edit_number, local_quizbot{{/str}}</label>
+                            <input type="text" inputmode="decimal" class="form-control {{#err_answer}}is-invalid{{/err_answer}}" id="local-quizbot-answer" name="answer" value="{{answer}}">
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="form-label fw-bold font-weight-bold" for="local-quizbot-tolerance">{{#str}}edit_tolerance, local_quizbot{{/str}}</label>
+                            <input type="text" inputmode="decimal" class="form-control {{#err_tolerance}}is-invalid{{/err_tolerance}}" id="local-quizbot-tolerance" name="tolerance" value="{{tolerance}}">
+                        </div>
+                    </div>
+                    {{/isnumerical}}
+
+                    {{#ismatch}}
+                    <fieldset class="mb-3">
+                        <legend class="h6 fw-bold font-weight-bold">{{#str}}edit_pairs, local_quizbot{{/str}}</legend>
+                        <p class="small text-muted">{{#str}}edit_pairshelp, local_quizbot{{/str}}</p>
+                        {{#pairs}}
+                        <div class="row mb-1">
+                            <div class="col-sm-6 mb-1"><input type="text" class="form-control {{#err_pairs}}is-invalid{{/err_pairs}}" name="left[{{i}}]" dir="auto" value="{{left}}" maxlength="300" aria-label="{{#str}}edit_left, local_quizbot, {{n}}{{/str}}"></div>
+                            <div class="col-sm-6 mb-1"><input type="text" class="form-control {{#err_pairs}}is-invalid{{/err_pairs}}" name="right[{{i}}]" dir="auto" value="{{right}}" maxlength="120" aria-label="{{#str}}edit_right, local_quizbot, {{n}}{{/str}}"></div>
+                        </div>
+                        {{/pairs}}
+                    </fieldset>
+                    {{/ismatch}}
+
+                    {{#isessay}}
+                    <div class="mb-3">
+                        <label class="form-label fw-bold font-weight-bold" for="local-quizbot-graderinfo">{{#str}}review_marking, local_quizbot{{/str}}</label>
+                        <textarea class="form-control" id="local-quizbot-graderinfo" name="graderinfo" dir="auto" rows="4" maxlength="3000">{{graderinfo}}</textarea>
+                    </div>
+                    {{/isessay}}
+
+                    {{^ismultichoice}}
+                    <div class="mb-3">
+                        <label class="form-label fw-bold font-weight-bold" for="local-quizbot-feedback">{{#str}}edit_feedback, local_quizbot{{/str}}</label>
+                        <textarea class="form-control" id="local-quizbot-feedback" name="feedback" dir="auto" rows="2" maxlength="1000">{{feedback}}</textarea>
+                    </div>
+                    {{/ismultichoice}}
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold font-weight-bold" for="local-quizbot-skill">{{#str}}edit_bloom, local_quizbot{{/str}}</label>
+                        <select class="form-select custom-select" id="local-quizbot-skill" name="bloom" style="max-width: 20rem">
+                            <option value="">{{#str}}edit_bloomnone, local_quizbot{{/str}}</option>
+                            {{#skills}}<option value="{{value}}" {{#selected}}selected{{/selected}}>{{label}}</option>{{/skills}}
+                        </select>
+                        <div class="small text-muted mt-1">{{#str}}edit_bloomhelp, local_quizbot{{/str}}</div>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2" style="gap: .5rem">
+                        <button type="submit" name="action" value="editsave" class="btn btn-primary">{{#str}}edit_save, local_quizbot{{/str}}</button>
+                        <button type="submit" name="action" value="editcancel" formnovalidate class="btn btn-secondary">{{#str}}edit_cancel, local_quizbot{{/str}}</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

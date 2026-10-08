@@ -1,0 +1,152 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_quizbot/myprogress
+
+    "My progress" in a course (1.1): quizzes done, average, strongest and weakest topic, every topic with a link to its
+    material, skills, the quizzes, and questions to look at again. Plain HTML: no script needed.
+
+    Example context (json):
+    {
+        "basis": "Your latest answer to each question", "hasdone": true,
+        "tiles": [{"label": "Quizzes done", "value": 3, "text": "", "of": "of 4", "note": "Next: Enzymes", "warn": false}],
+        "topics": [{"name": "The Calvin cycle", "pct": "25%", "bar": {"width": 25, "weak": true}, "word": "Revise",
+            "wordclass": "is-revise", "righttext": "1 of 4 right", "materialurl": "#",
+            "materialname": "The Calvin cycle (PDF handout)"}], "hastopics": true,
+        "skills": [{"name": "Apply", "pct": "40%", "bar": {"width": 40, "weak": true} }], "hasskills": true,
+        "skillexplain": "Apply means using what you learned in a new case, like a calculation.",
+        "quizzes": [{"name": "Photosynthesis", "url": "#", "when": "3 Oct", "pct": "60%", "bar": {"width": 60, "weak": false},
+            "hidden": false}],
+        "again": [{"where": "Photosynthesis · question 4", "text": "Name the enzyme.", "reviewurl": "#"}], "hasagain": true,
+        "remedials": [{"name": "Extra practice: The Calvin cycle", "url": "#", "topic": "The Calvin cycle"}],
+        "hasremedials": true
+    }
+}}
+<div class="local-quizbot local-quizbot-progress">
+    <p class="small text-muted">{{basis}}</p>
+
+    {{#remedials}}
+    <div class="card mb-3">
+        <div class="card-body d-flex flex-wrap align-items-center justify-content-between" style="gap: .75rem">
+            <div>
+                <h2 class="h5 mb-1" dir="auto">{{#str}}remedial_revisefirst, local_quizbot, {{topic}}{{/str}}</h2>
+                <p class="mb-0 text-muted">{{#str}}remedial_foryou, local_quizbot{{/str}}</p>
+            </div>
+            <a href="{{url}}" class="btn btn-primary" dir="auto">{{#str}}remedial_start, local_quizbot, {{name}}{{/str}}</a>
+        </div>
+    </div>
+    {{/remedials}}
+
+    {{^hasdone}}
+    <div class="card">
+        <div class="card-body">
+            <h2 class="h5">{{#str}}myprogress_none, local_quizbot{{/str}}</h2>
+            <p class="mb-0 text-muted">{{#str}}myprogress_none_help, local_quizbot{{/str}}</p>
+        </div>
+    </div>
+    {{/hasdone}}
+
+    {{#hasdone}}
+    <div class="local-quizbot-tiles mb-3">
+        {{#tiles}}
+        <div class="local-quizbot-tile local-quizbot-figure {{#warn}}is-warn{{/warn}}">
+            <div class="local-quizbot-figurelabel">{{label}}</div>
+            {{#value}}<div class="local-quizbot-figurevalue">{{value}} <span class="local-quizbot-figureof">{{of}}</span></div>{{/value}}
+            {{#text}}<div class="local-quizbot-figuretext" dir="auto">{{text}}</div>{{/text}}
+            {{#note}}<div class="small text-muted">{{note}}</div>{{/note}}
+        </div>
+        {{/tiles}}
+    </div>
+
+    <div class="row">
+        <div class="col-lg-7 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h2 class="h5 mb-1">{{#str}}myprogress_topics, local_quizbot{{/str}}</h2>
+                    <p class="small text-muted">{{#str}}myprogress_topics_help, local_quizbot{{/str}}</p>
+                    {{#topics}}
+                    <div class="local-quizbot-meter mb-3">
+                        <div class="d-flex flex-wrap justify-content-between gap-2" style="gap: .5rem">
+                            <span><span class="fw-bold font-weight-bold" dir="auto">{{name}}</span> <span class="local-quizbot-word {{wordclass}}">{{word}}</span></span>
+                            <span class="local-quizbot-num">{{pct}}</span>
+                        </div>
+                        <div class="local-quizbot-track"><span class="local-quizbot-fill {{#bar.weak}}is-weak{{/bar.weak}}" style="width: {{bar.width}}%"></span></div>
+                        <div class="small text-muted mt-1">{{righttext}}{{#materialurl}} · <a href="{{materialurl}}">{{#str}}card_open, local_quizbot{{/str}} <bdi>{{materialname}}</bdi></a>{{/materialurl}}</div>
+                    </div>
+                    {{/topics}}
+                    {{^hastopics}}<p class="mb-0">{{#str}}myprogress_notopics, local_quizbot{{/str}}</p>{{/hastopics}}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h2 class="h5 mb-1">{{#str}}myprogress_skills, local_quizbot{{/str}}</h2>
+                    <p class="small text-muted">{{#str}}myprogress_skills_help, local_quizbot{{/str}}</p>
+                    {{#skills}}
+                    <div class="local-quizbot-meter mb-2">
+                        <div class="d-flex justify-content-between gap-2" style="gap: .5rem">
+                            <span class="fw-bold font-weight-bold">{{name}}</span>
+                            <span class="local-quizbot-num">{{pct}}</span>
+                        </div>
+                        <div class="local-quizbot-track"><span class="local-quizbot-fill {{#bar.weak}}is-weak{{/bar.weak}}" style="width: {{bar.width}}%"></span></div>
+                    </div>
+                    {{/skills}}
+                    {{#skillexplain}}<p class="local-quizbot-note p-2 small mt-3 mb-0">{{skillexplain}}</p>{{/skillexplain}}
+                    {{^hasskills}}<p class="mb-0">{{#str}}myprogress_noskills, local_quizbot{{/str}}</p>{{/hasskills}}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h2 class="h5">{{#str}}myprogress_quizzes, local_quizbot{{/str}}</h2>
+                    {{#quizzes}}
+                    <div class="local-quizbot-meter mb-2">
+                        <div class="d-flex flex-wrap justify-content-between gap-2" style="gap: .5rem">
+                            <span><a href="{{url}}" dir="auto">{{name}}</a> <span class="small text-muted">· {{when}}</span></span>
+                            <span class="{{^hidden}}local-quizbot-num{{/hidden}}{{#hidden}}small text-muted{{/hidden}}">{{pct}}</span>
+                        </div>
+                        {{^hidden}}<div class="local-quizbot-track"><span class="local-quizbot-fill {{#bar.weak}}is-weak{{/bar.weak}}" style="width: {{bar.width}}%"></span></div>{{/hidden}}
+                    </div>
+                    {{/quizzes}}
+                </div>
+            </div>
+        </div>
+        {{#hasagain}}
+        <div class="col-lg-6 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h2 class="h5 mb-1">{{#str}}myprogress_again, local_quizbot{{/str}}</h2>
+                    <p class="small text-muted">{{#str}}myprogress_again_help, local_quizbot{{/str}}</p>
+                    {{#again}}
+                    <div class="local-quizbot-line p-2 mb-2">
+                        <div class="local-quizbot-figurelabel">{{where}}</div>
+                        <div dir="auto">{{text}}</div>
+                        {{#reviewurl}}<a href="{{reviewurl}}" class="small">{{#str}}myprogress_seeit, local_quizbot{{/str}}</a>{{/reviewurl}}
+                    </div>
+                    {{/again}}
+                </div>
+            </div>
+        </div>
+        {{/hasagain}}
+    </div>
+    {{/hasdone}}
+</div>

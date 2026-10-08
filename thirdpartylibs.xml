@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<libraries>
+    <library>
+        <location>fonts/bricolagegrotesque-600-700-latin-ext.woff2</location>
+        <name>Bricolage Grotesque</name>
+        <description>Typeface of the Quizbot pages (Latin subset, from Google Fonts, unchanged)</description>
+        <version>Google Fonts v9</version>
+        <license>OFL</license>
+        <licenseversion>1.1</licenseversion>
+        <repository>https://github.com/ateliertriay/bricolage</repository>
+    </library>
+    <library>
+        <location>fonts/bricolagegrotesque-600-700-latin.woff2</location>
+        <name>Bricolage Grotesque</name>
+        <description>Typeface of the Quizbot pages (Latin subset, from Google Fonts, unchanged)</description>
+        <version>Google Fonts v9</version>
+        <license>OFL</license>
+        <licenseversion>1.1</licenseversion>
+        <repository>https://github.com/ateliertriay/bricolage</repository>
+    </library>
+    <library>
+        <location>fonts/ibmplexmono-400-latin-ext.woff2</location>
+        <name>IBM Plex Mono</name>
+        <description>Typeface of the Quizbot pages (Latin subset, from Google Fonts, unchanged)</description>
+        <version>Google Fonts v20</version>
+        <license>OFL</license>
+        <licenseversion>1.1</licenseversion>
+        <repository>https://github.com/IBM/plex</repository>
+    </library>
+    <library>
+        <location>fonts/ibmplexmono-400-latin.woff2</location>
+        <name>IBM Plex Mono</name>
+        <description>Typeface of the Quizbot pages (Latin subset, from Google Fonts, unchanged)</description>
+        <version>Google Fonts v20</version>
+        <license>OFL</license>
+        <licenseversion>1.1</licenseversion>
+        <repository>https://github.com/IBM/plex</repository>
+    </library>
+    <library>
+        <location>fonts/ibmplexmono-500-latin-ext.woff2</location>
+        <name>IBM Plex Mono</name>
+        <description>Typeface of the Quizbot pages (Latin subset, from Google Fonts, unchanged)</description>
+        <version>Google Fonts v20</version>
+        <license>OFL</license>
+        <licenseversion>1.1</licenseversion>
+        <repository>https://github.com/IBM/plex</repository>
+    </library>
+    <library>
+        <location>fonts/ibmplexmono-500-latin.woff2</location>
+        <name>IBM Plex Mono</name>
+        <description>Typeface of the Quizbot pages (Latin subset, from Google Fonts, unchanged)</description>
+        <version>Google Fonts v20</version>
+        <license>OFL</license>
+        <licenseversion>1.1</licenseversion>
+        <repository>https://github.com/IBM/plex</repository>
+    </library>
+    <library>
+        <location>fonts/instrumentsans-400-600-latin-ext.woff2</location>
+        <name>Instrument Sans</name>
+        <description>Typeface of the Quizbot pages (Latin subset, from Google Fonts, unchanged)</description>
+        <version>Google Fonts v4</version>
+        <license>OFL</license>
+        <licenseversion>1.1</licenseversion>
+        <repository>https://github.com/Instrument/instrument-sans</repository>
+    </library>
+    <library>
+        <location>fonts/instrumentsans-400-600-latin.woff2</location>
+        <name>Instrument Sans</name>
+        <description>Typeface of the Quizbot pages (Latin subset, from Google Fonts, unchanged)</description>
+        <version>Google Fonts v4</version>
+        <license>OFL</license>
+        <licenseversion>1.1</licenseversion>
+        <repository>https://github.com/Instrument/instrument-sans</repository>
+    </library>
+</libraries>

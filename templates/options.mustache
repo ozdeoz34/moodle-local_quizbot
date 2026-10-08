@@ -1,0 +1,167 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_quizbot/options
+
+    Step 2 of the wizard: how many questions of each kind, and how they should be written.
+    The Bloom's section (1.1): the numbers per level are sent with the form; amd/src/bloom.js adds the quick choices, the
+    live checks and the table of how the questions will be written. Without script the server checks the numbers.
+
+    Example context (json):
+    {
+        "actionurl": "https://example.com/local/quizbot/generate.php", "sesskey": "abc", "cmid": 14,
+        "types": [{"id": "multichoice", "label": "Multiple choice", "help": "One correct answer", "count": 5, "max": 40}],
+        "languages": [{"value": "auto", "label": "Same as the sources", "selected": true}],
+        "levels": [{"value": "secondary", "label": "Secondary school", "selected": true}],
+        "difficulties": [{"value": "mixed", "label": "A mix of easy and hard", "selected": true}],
+        "keeps": [{"value": "quiz", "label": "This quiz only", "selected": true}],
+        "feedback": true, "spread": true, "keephelp": "They are added to the quiz after you have reviewed them.",
+        "total": 10, "maxquestions": 40, "licenceleft": "4,320 of 5,000 questions left, until 30 September 2027", "totalover": false, "totalovernote": "That is more than 40. Please lower some of the numbers.",
+        "bloomon": true, "bloomjson": "{}",
+        "skills": [{"id": "apply", "label": "Apply", "what": "Use what they learned in a new case", "verbs": "calculate, solve, use", "fits": "As: numerical, short answer, multiple choice, essay", "count": 2}],
+        "steps": [{"number": 2, "label": "Questions", "done": false, "current": true}]
+    }
+}}
+<div class="local-quizbot">
+    {{> local_quizbot/steps }}
+    <form method="post" action="{{actionurl}}" id="local-quizbot-options">
+        <input type="hidden" name="sesskey" value="{{sesskey}}">
+        <input type="hidden" name="cmid" value="{{cmid}}">
+        <input type="hidden" name="step" value="options">
+        <div class="row">
+            <div class="col-lg-8 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="h4">{{#str}}typesheading, local_quizbot{{/str}}</h2>
+                        <p class="text-muted">{{#str}}typeshelp, local_quizbot{{/str}}</p>
+                        <div class="row">
+                            {{#types}}
+                            <div class="col-md-6 mb-3">
+                                <div class="local-quizbot-tile p-3 d-flex align-items-center justify-content-between gap-3 h-100" style="gap: 1rem">
+                                    <label for="local-quizbot-n-{{id}}" class="mb-0">
+                                        <span class="d-block fw-bold font-weight-bold">{{label}}</span>
+                                        <span class="d-block small text-muted">{{help}}</span>
+                                        {{#limit}}<span class="d-block small {{#over}}text-danger fw-bold font-weight-bold{{/over}}{{^over}}text-muted{{/over}}" data-limit-for="local-quizbot-n-{{id}}">{{limit}}</span>{{/limit}}
+                                    </label>
+                                    <input type="number" class="form-control text-center flex-shrink-0 {{#over}}is-invalid{{/over}}" style="width: 5rem" id="local-quizbot-n-{{id}}" name="n_{{id}}" min="0" max="{{max}}" value="{{count}}">
+                                </div>
+                            </div>
+                            {{/types}}
+                        </div>
+
+                        <div class="local-quizbot-panel p-3 mb-3" id="local-quizbot-bloom" data-bloom="{{bloomjson}}">
+                            <h3 class="h5">{{#str}}bloomheading, local_quizbot{{/str}}</h3>
+                            <p class="small text-muted">{{#str}}bloomintro, local_quizbot{{/str}}</p>
+                            <div class="form-check mb-2">
+                                <input type="checkbox" class="form-check-input" id="local-quizbot-bloomon" name="bloomon" value="1" {{#bloomon}}checked{{/bloomon}}>
+                                <label class="form-check-label fw-bold font-weight-bold" for="local-quizbot-bloomon">{{#str}}bloomon, local_quizbot{{/str}}</label>
+                                <div class="small text-muted">{{#str}}bloomoff, local_quizbot{{/str}}</div>
+                            </div>
+                            <div id="local-quizbot-bloomrows">
+                                <div class="d-flex flex-wrap align-items-center gap-2 my-2" style="gap: .5rem" id="local-quizbot-bloompresets" hidden>
+                                    <span class="small text-muted">{{#str}}bloomquick, local_quizbot{{/str}}</span>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" data-preset="even">{{#str}}bloompreset_even, local_quizbot{{/str}}</button>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" data-preset="basics">{{#str}}bloompreset_basics, local_quizbot{{/str}}</button>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" data-preset="higher">{{#str}}bloompreset_higher, local_quizbot{{/str}}</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" data-preset="clear">{{#str}}bloompreset_clear, local_quizbot{{/str}}</button>
+                                </div>
+                                <div class="local-quizbot-list">
+                                    {{#skills}}
+                                    <div class="d-flex align-items-center justify-content-between gap-3 px-3 py-2 border-bottom" style="gap: 1rem">
+                                        <label for="local-quizbot-b-{{id}}" class="mb-0">
+                                            <span class="fw-bold font-weight-bold">{{label}}</span>
+                                            <span>· {{what}}</span> <span class="small text-muted">({{verbs}})</span>
+                                            <span class="d-block small text-muted">{{fits}}</span>
+                                        </label>
+                                        <input type="number" class="form-control text-center flex-shrink-0" style="width: 5rem" id="local-quizbot-b-{{id}}" name="b_{{id}}" min="0" max="40" value="{{count}}" data-level="{{id}}">
+                                    </div>
+                                    {{/skills}}
+                                </div>
+                                <p class="small mt-2 mb-2" id="local-quizbot-bloomsum" aria-live="polite"></p>
+                                <div class="alert alert-warning py-2 mb-2" id="local-quizbot-bloommsg" role="alert" hidden></div>
+                                <details class="local-quizbot-list p-2" id="local-quizbot-bloomplan" open hidden>
+                                    <summary class="fw-bold font-weight-bold">{{#str}}bloomplanheading, local_quizbot{{/str}}</summary>
+                                    <div class="table-responsive mt-2">
+                                        <table class="table table-sm table-bordered mb-1 text-center" id="local-quizbot-bloomtable"></table>
+                                    </div>
+                                    <div class="small text-muted">{{#str}}bloomplannote, local_quizbot{{/str}}</div>
+                                </details>
+                            </div>
+                        </div>
+
+                        <h3 class="h5 mt-3">{{#str}}howwritten, local_quizbot{{/str}}</h3>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-bold font-weight-bold" for="local-quizbot-language">{{#str}}language, local_quizbot{{/str}}</label>
+                                <select class="form-select custom-select" id="local-quizbot-language" name="language">
+                                    {{#languages}}<option value="{{value}}" {{#selected}}selected{{/selected}}>{{label}}</option>{{/languages}}
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-bold font-weight-bold" for="local-quizbot-level">{{#str}}level, local_quizbot{{/str}}</label>
+                                <select class="form-select custom-select" id="local-quizbot-level" name="level">
+                                    {{#levels}}<option value="{{value}}" {{#selected}}selected{{/selected}}>{{label}}</option>{{/levels}}
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-bold font-weight-bold" for="local-quizbot-difficulty">{{#str}}difficulty, local_quizbot{{/str}}</label>
+                                <select class="form-select custom-select" id="local-quizbot-difficulty" name="difficulty">
+                                    {{#difficulties}}<option value="{{value}}" {{#selected}}selected{{/selected}}>{{label}}</option>{{/difficulties}}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input type="checkbox" class="form-check-input" id="local-quizbot-feedback" name="feedback" value="1" {{#feedback}}checked{{/feedback}}>
+                            <label class="form-check-label" for="local-quizbot-feedback">{{#str}}feedback, local_quizbot{{/str}}</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input type="checkbox" class="form-check-input" id="local-quizbot-spread" name="spread" value="1" {{#spread}}checked{{/spread}}>
+                            <label class="form-check-label" for="local-quizbot-spread">{{#str}}spread, local_quizbot{{/str}}</label>
+                        </div>
+
+                        <h3 class="h5 mt-4">{{#str}}wherego, local_quizbot{{/str}}</h3>
+                        <label class="form-label fw-bold font-weight-bold" for="local-quizbot-keep">{{#str}}keep, local_quizbot{{/str}}</label>
+                        <select class="form-select custom-select" id="local-quizbot-keep" name="keep" style="max-width: 32rem">
+                            {{#keeps}}<option value="{{value}}" {{#selected}}selected{{/selected}}>{{label}}</option>{{/keeps}}
+                        </select>
+                        <p class="small text-muted mt-2 mb-0">{{keephelp}}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <dl class="mb-3">
+                            <div class="d-flex justify-content-between"><dt class="fw-normal font-weight-normal text-muted">{{#str}}questionstotal, local_quizbot, {{maxquestions}}{{/str}}</dt><dd class="fw-bold font-weight-bold mb-1 {{#totalover}}text-danger{{/totalover}}" id="local-quizbot-total" aria-live="polite">{{total}}</dd></div>
+                            <div class="d-flex justify-content-between"><dt class="fw-normal font-weight-normal text-muted">{{#str}}sourcesfrom, local_quizbot{{/str}}</dt><dd class="fw-bold font-weight-bold mb-1">{{sourcetext}}</dd></div>
+                        </dl>
+                        <ul class="list-unstyled small">
+                            {{#chosen}}
+                            <li class="local-quizbot-note p-2 mb-1" dir="auto">{{name}}</li>
+                            {{/chosen}}
+                        </ul>
+                        <p class="small text-danger fw-bold font-weight-bold" id="local-quizbot-totalnote" data-max="{{maxquestions}}" {{^totalover}}hidden{{/totalover}}>{{totalovernote}}</p>
+                        <button type="submit" name="action" value="next" class="btn btn-primary btn-lg w-100 mb-2">{{#str}}generaten, local_quizbot{{/str}}</button>
+                        <button type="submit" name="action" value="back" formnovalidate class="btn btn-link w-100">{{#str}}backtosources, local_quizbot{{/str}}</button>
+                        {{#licenceleft}}<p class="small text-muted text-center mt-2 mb-0 pt-2 border-top" id="local-quizbot-licenceleft">{{licenceleft}}</p>{{/licenceleft}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,63 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_quizbot/studentcard
+
+    The card on the review page of a finished quiz attempt (1.1): the result by topic and the topic to revise first,
+    with a link to its material. Shown to the student and their teachers, only when the quiz lets the student see the
+    marks. Written at the foot of the page; local_quizbot/card moves it to the top.
+
+    Example context (json):
+    {
+        "progressurl": "#", "pendingnote": "",
+        "topics": [{"name": "The Calvin cycle", "righttext": "1 of 4 right", "word": "Revise", "wordclass": "is-revise",
+            "width": 25, "weak": true}],
+        "hasrevise": true, "revisename": "The Calvin cycle", "revisetext": "You got 1 of 4 questions on it right.",
+        "materialurl": "#", "materialname": "The Calvin cycle (PDF handout)", "allstrong": false
+    }
+}}
+<div class="local-quizbot-desk local-quizbot-card mb-3" id="local-quizbot-card">
+    <div class="d-flex flex-wrap align-items-start justify-content-between gap-2" style="gap: .5rem">
+        <div>
+            <div class="local-quizbot-brand">{{#str}}brand, local_quizbot{{/str}}</div>
+            <h2 class="h5 mb-0">{{#str}}card_heading, local_quizbot{{/str}}</h2>
+            <p class="small text-muted mb-0">{{#str}}card_help, local_quizbot{{/str}}</p>
+        </div>
+        <a href="{{progressurl}}" class="btn btn-sm btn-outline-secondary">{{#str}}card_progress, local_quizbot{{/str}}</a>
+    </div>
+    <div class="local-quizbot-cardtopics mt-3">
+        {{#topics}}
+        <div class="local-quizbot-meter">
+            <div class="d-flex flex-wrap justify-content-between gap-2" style="gap: .5rem">
+                <span><span class="fw-bold font-weight-bold" dir="auto">{{name}}</span> <span class="small text-muted">· {{righttext}}</span></span>
+                <span class="local-quizbot-word {{wordclass}}">{{word}}</span>
+            </div>
+            <div class="local-quizbot-track"><span class="local-quizbot-fill {{#weak}}is-weak{{/weak}}" style="width: {{width}}%"></span></div>
+        </div>
+        {{/topics}}
+    </div>
+    {{#hasrevise}}
+    <div class="local-quizbot-note p-3 mt-3">
+        <div class="fw-bold font-weight-bold">{{#str}}card_revise, local_quizbot{{/str}} <bdi>{{revisename}}</bdi></div>
+        <p class="small mb-2">{{revisetext}}</p>
+        {{#materialurl}}<a href="{{materialurl}}" class="btn btn-sm btn-primary">{{#str}}card_open, local_quizbot{{/str}} <bdi>{{materialname}}</bdi></a>{{/materialurl}}
+        {{^materialurl}}{{#materialname}}<p class="small text-muted mb-0">{{#str}}card_from, local_quizbot{{/str}} <bdi>{{materialname}}</bdi></p>{{/materialname}}{{/materialurl}}
+    </div>
+    {{/hasrevise}}
+    {{#allstrong}}<p class="small mt-3 mb-0">{{#str}}card_allstrong, local_quizbot{{/str}}</p>{{/allstrong}}
+    {{#pendingnote}}<p class="small text-muted mt-2 mb-0">{{pendingnote}}</p>{{/pendingnote}}
+</div>

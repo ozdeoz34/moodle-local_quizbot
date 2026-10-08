@@ -1,0 +1,160 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_quizbot/sources
+
+    Step 1 of the wizard: what the questions should be about.
+
+    The tabs are submit buttons of the one form, so what was ticked or typed is saved when the teacher changes tab,
+    without any script. Only the upload tab holds a Moodle form of its own; there the tabs are plain links.
+    The link tab reads the link as soon as it is sent ("Read this link", a tab change or Next) and says what it found.
+
+    Example context (json):
+    {
+        "actionurl": "https://example.com/local/quizbot/generate.php",
+        "sesskey": "abc", "cmid": 14, "tab": "course", "plainform": true,
+        "tabs": [{"id": "course", "label": "From this course", "active": true, "count": 2, "url": "#"}],
+        "iscourse": true, "hassections": true,
+        "sections": [{"name": "Topic 1", "items": [{"key": "f12", "kindlabel": "Slides", "name": "Light", "detail": "PowerPoint file · 10 MB", "checked": true}]}],
+        "chosentitle": "2 sources chosen", "chosen": [{"name": "Light", "note": ""}],
+        "nexturl": "#", "cancelurl": "#", "hasvideo": true,
+        "steps": [{"number": 1, "label": "Sources", "done": false, "current": true}]
+    }
+}}
+<div class="local-quizbot">
+    {{> local_quizbot/steps }}
+    <div class="row">
+        <div class="col-lg-8 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="h4">{{#str}}sourcesheading, local_quizbot{{/str}}</h2>
+
+                    {{#plainform}}
+                    <form method="post" action="{{actionurl}}" id="local-quizbot-sources" data-max="{{maxsources}}">
+                        <input type="hidden" name="sesskey" value="{{sesskey}}">
+                        <input type="hidden" name="cmid" value="{{cmid}}">
+                        <input type="hidden" name="step" value="sources">
+                        <input type="hidden" name="fromtab" value="{{tab}}">
+                        {{#islink}}
+                        {{! Pressing Enter in the link box sends the form with its first button: make that "read this link", not the first tab. }}
+                        <button type="submit" name="action" value="tab-link" class="visually-hidden sr-only" tabindex="-1" aria-hidden="true">{{#str}}linkread, local_quizbot{{/str}}</button>
+                        {{/islink}}
+
+                        <ul class="nav nav-tabs mt-3 mb-3" role="tablist">
+                            {{#tabs}}
+                            <li class="nav-item" role="presentation">
+                                <button type="submit" name="action" value="tab-{{id}}" role="tab" aria-selected="{{#active}}true{{/active}}{{^active}}false{{/active}}" class="nav-link {{#active}}active{{/active}}">{{label}}{{#live}} <span id="local-quizbot-count-course" class="badge local-quizbot-count" {{^number}}hidden{{/number}}>{{number}}</span>{{/live}}{{^live}}{{#number}} <span class="badge local-quizbot-count">{{number}}</span>{{/number}}{{/live}}{{#tick}} <span class="badge local-quizbot-count" title="{{#str}}tabfilled, local_quizbot{{/str}}">&#10003;<span class="visually-hidden sr-only"> {{#str}}tabfilled, local_quizbot{{/str}}</span></span>{{/tick}}</button>
+                            </li>
+                            {{/tabs}}
+                        </ul>
+
+                        {{#iscourse}}
+                        <p class="text-muted">{{#str}}coursehelp, local_quizbot{{/str}}</p>
+                        {{^hassections}}
+                        <div class="alert alert-info">{{#str}}coursenone, local_quizbot{{/str}}</div>
+                        {{/hassections}}
+                        {{#sections}}
+                        <h3 class="h6 text-uppercase text-muted mt-4" dir="auto">{{name}}</h3>
+                        <div class="list-group">
+                            {{#items}}
+                            <label class="list-group-item local-quizbot-pick d-flex align-items-center gap-3 mb-0" style="gap: 1rem" for="local-quizbot-{{key}}">
+                                <input type="checkbox" class="form-check-input flex-shrink-0 m-0" id="local-quizbot-{{key}}" name="sources[]" value="{{key}}" {{#checked}}checked{{/checked}}>
+                                <span class="badge local-quizbot-tag flex-shrink-0" style="min-width: 5.5rem">{{kindlabel}}</span>
+                                <span class="flex-grow-1" style="min-width: 0">
+                                    <span class="d-block fw-bold font-weight-bold" data-role="name" dir="auto">{{name}}</span>
+                                    <span class="d-block small text-muted" data-role="detail">{{detail}}</span>
+                                </span>
+                            </label>
+                            {{/items}}
+                        </div>
+                        {{/sections}}
+                        <p class="small text-muted mt-3 mb-0">{{#str}}coursenotlisted, local_quizbot{{/str}}</p>
+                        {{/iscourse}}
+
+                        {{#islink}}
+                        <p class="text-muted">{{#str}}linkhelp, local_quizbot{{/str}}</p>
+                        <label class="form-label fw-bold font-weight-bold" for="local-quizbot-link">{{#str}}linklabel, local_quizbot{{/str}}</label>
+                        <input type="text" inputmode="url" autocomplete="off" spellcheck="false" class="form-control" id="local-quizbot-link" name="link" value="{{link}}" maxlength="2000" placeholder="https://">
+                        <p class="small text-muted mt-2">{{#str}}linknote, local_quizbot{{/str}}</p>
+                        <button type="submit" name="action" value="tab-link" class="btn btn-secondary">{{#str}}linkread, local_quizbot{{/str}}</button>
+                        {{#linkread}}
+                        <div class="alert alert-success mt-3 mb-0" role="status">
+                            <span class="d-block fw-bold font-weight-bold">{{#str}}linkok, local_quizbot{{/str}}</span>
+                            <span class="d-block" dir="auto">{{name}}</span>
+                            <span class="d-block small">{{note}}</span>
+                        </div>
+                        {{/linkread}}
+                        {{/islink}}
+
+                        {{#istext}}
+                        <p class="text-muted">{{#str}}pastehelp, local_quizbot{{/str}}</p>
+                        <label class="form-label fw-bold font-weight-bold" for="local-quizbot-pastetext">{{#str}}pastelabel, local_quizbot{{/str}}</label>
+                        <textarea class="form-control" id="local-quizbot-pastetext" name="pastetext" rows="14">{{pastetext}}</textarea>
+                        {{/istext}}
+
+                    </form>
+                    {{/plainform}}
+
+                    {{^plainform}}
+                    <ul class="nav nav-tabs mt-3 mb-3">
+                        {{#tabs}}
+                        <li class="nav-item">
+                            <a href="{{url}}" class="nav-link {{#active}}active{{/active}}" {{#active}}aria-current="page"{{/active}}>{{label}}{{#number}} <span class="badge local-quizbot-count">{{number}}</span>{{/number}}{{#tick}} <span class="badge local-quizbot-count" title="{{#str}}tabfilled, local_quizbot{{/str}}">&#10003;<span class="visually-hidden sr-only"> {{#str}}tabfilled, local_quizbot{{/str}}</span></span>{{/tick}}</a>
+                        </li>
+                        {{/tabs}}
+                    </ul>
+                    <p class="text-muted">{{#str}}uploadhelp, local_quizbot{{/str}}</p>
+                    {{{uploadform}}}
+                    {{/plainform}}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="h5" id="local-quizbot-chosentitle" aria-live="polite" data-none="{{titlenone}}" data-one="{{titleone}}" data-many="{{titlemany}}">{{chosentitle}}</h2>
+                    <ul class="list-unstyled" id="local-quizbot-chosen">
+                        {{#chosen}}
+                        <li class="local-quizbot-note p-2 mb-2" {{#fixed}}data-fixed="1"{{/fixed}}{{^fixed}}data-key="{{key}}"{{/fixed}}>
+                            <span class="d-block" dir="auto">{{name}}</span>
+                            {{#note}}<span class="d-block small text-muted">{{note}}</span>{{/note}}
+                        </li>
+                        {{/chosen}}
+                    </ul>
+                    <p class="small text-muted" id="local-quizbot-maxnote">{{maxnote}}</p>
+                    {{#hasvideo}}<p class="small text-muted">{{#str}}videonote, local_quizbot{{/str}}</p>{{/hasvideo}}
+                    {{#plainform}}
+                    <button type="submit" form="local-quizbot-sources" name="action" value="next" class="btn btn-primary w-100 mb-2">{{#str}}next_options, local_quizbot{{/str}}</button>
+                    {{/plainform}}
+                    {{^plainform}}
+                    <a href="{{nexturl}}" class="btn btn-primary w-100 mb-2">{{#str}}next_options, local_quizbot{{/str}}</a>
+                    {{/plainform}}
+                    <a href="{{cancelurl}}" class="btn btn-link w-100">{{#str}}cancel, local_quizbot{{/str}}</a>
+                    {{#haschosen}}
+                    <form method="post" action="{{actionurl}}" class="mt-2 pt-2 border-top text-center">
+                        <input type="hidden" name="sesskey" value="{{sesskey}}">
+                        <input type="hidden" name="cmid" value="{{cmid}}">
+                        <button type="submit" name="action" value="reset" class="btn btn-link btn-sm">{{#str}}startagain, local_quizbot{{/str}}</button>
+                        <div class="small text-muted">{{#str}}startagain_help, local_quizbot{{/str}}</div>
+                    </form>
+                    {{/haschosen}}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

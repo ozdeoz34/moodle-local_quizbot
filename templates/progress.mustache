@@ -1,0 +1,59 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_quizbot/progress
+
+    While Quizbot reads the sources and writes the questions. The page asks again by itself every few seconds
+    (Moodle's periodic refresh), so it needs no script and works under every theme. The spinner on the step in hand
+    is a drawing that turns by itself, so it needs no theme style either.
+
+    Example context (json):
+    {
+        "rows": [
+            {"label": "Read “Light”", "done": true, "now": false, "problem": false, "waiting": false, "note": ""},
+            {"label": "Read “Phase changes”", "done": false, "now": true, "problem": false, "waiting": false, "note": "A video takes the longest."},
+            {"label": "Write the 10 questions", "done": false, "now": false, "problem": false, "waiting": true, "note": ""}
+        ],
+        "problem": "", "quizurl": "#",
+        "steps": [{"number": 3, "label": "Review and save", "done": false, "current": true}]
+    }
+}}
+<div class="local-quizbot">
+    {{> local_quizbot/steps }}
+    <div class="card mx-auto" style="max-width: 46rem">
+        <div class="card-body" aria-live="polite">
+            <h2 class="h4">{{#str}}progress_heading, local_quizbot{{/str}}</h2>
+            {{#problem}}<div class="alert alert-warning">{{problem}}</div>{{/problem}}
+            <ol class="list-unstyled mt-3">
+                {{#rows}}
+                <li class="d-flex align-items-start gap-3 mb-3 {{#waiting}}text-muted{{/waiting}}" style="gap: 1rem">
+                    <span class="badge local-quizbot-state flex-shrink-0 mt-1 {{#done}}is-done{{/done}}{{#now}}is-now{{/now}}{{#problem}}is-problem{{/problem}}{{#waiting}}is-waiting{{/waiting}}" style="min-width: 5.5rem">{{#done}}{{#str}}state_done, local_quizbot{{/str}}{{/done}}{{#now}}<svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="vertical-align: -1px; margin-inline-end: .4em"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-opacity=".35" stroke-width="4"/><path d="M12 3a9 9 0 0 1 9 9" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="0.9s" repeatCount="indefinite"/></path></svg>{{#str}}state_now, local_quizbot{{/str}}{{/now}}{{#problem}}{{#str}}state_problem, local_quizbot{{/str}}{{/problem}}{{#waiting}}{{#str}}state_waiting, local_quizbot{{/str}}{{/waiting}}</span>
+                    <span>
+                        <span class="d-block {{#now}}fw-bold font-weight-bold{{/now}}">{{label}}</span>
+                        {{#note}}<span class="d-block small text-muted">{{note}}</span>{{/note}}
+                    </span>
+                </li>
+                {{/rows}}
+            </ol>
+            <div class="local-quizbot-note p-3">
+                <div class="fw-bold font-weight-bold">{{#str}}progress_leave, local_quizbot{{/str}}</div>
+                <div class="small text-muted">{{#str}}progress_leave_help, local_quizbot{{/str}}</div>
+            </div>
+            <a href="{{quizurl}}" class="btn btn-secondary mt-3">{{#str}}backtoquiz, local_quizbot{{/str}}</a>
+        </div>
+    </div>
+</div>

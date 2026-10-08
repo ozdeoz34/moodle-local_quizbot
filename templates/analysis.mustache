@@ -1,0 +1,320 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_quizbot/analysis
+
+    Quizbot Analysis of one quiz (1.1), for its teachers: a summary, the spread of scores, topics, skills, planned
+    against real difficulty, every question with notes, and the students below the pass mark. Bars are plain boxes
+    with a width or height, so the page needs no script; local_quizbot/analysis only opens Moodle's message window.
+
+    Example context (json):
+    {
+        "quizname": "Photosynthesis: end-of-unit quiz", "groupmenu": "", "updated": "Updated 5 minutes ago",
+        "refreshurl": "#", "passnote": "", "hasattempts": true, "ungradednote": "", "pass": "60%",
+        "tiles": [{"label": "Finished the quiz", "value": 22, "of": "of 24", "note": "92% of the class", "warn": false,
+            "anchor": "", "anchortext": ""}],
+        "bands": [{"label": "60–79%", "n": 9, "below": false, "height": 100}],
+        "topics": [{"name": "The Calvin cycle", "other": false, "questions": "4 questions", "pct": "47%", "few": false,
+            "bar": {"width": 47, "weak": true} }], "hastopics": true,
+        "skills": [{"name": "Apply", "pct": "48%", "bar": {"width": 48, "weak": true}, "note": "2 questions"}],
+        "hasskills": true,
+        "difficulty": [{"level": "Easy", "questions": 3, "pct": "91%", "verdict": "As planned"}], "hasdifficulty": true,
+        "questions": [{"slot": 4, "text": "Name the enzyme that fixes carbon dioxide.", "label": "Carbon fixation",
+            "type": "Short answer", "topic": "The Calvin cycle", "skill": "Remember", "pct": "41%",
+            "bar": {"width": 41, "weak": true}, "sep": "Good (0.48)", "sepweak": false,
+            "notes": [{"text": "Few got it right: 41%"}], "hasnotes": true, "previewurl": "#"}],
+        "onlynotes": false, "notesurl": "#", "minanswers": 8,
+        "below": [{"id": 5, "name": "Aylin K.", "profileurl": "#", "score": "38%", "revise": "The Calvin cycle",
+            "when": "3/10/26, 10:42", "reviewurl": "#", "remedial": "Not started", "remedialdone": false}],
+        "hasbelow": true, "belowcount": 1, "canmessage": true, "userids": "[5]",
+        "canremedial": true, "remedialurl": "#", "hasremedialtopics": true,
+        "remedialtopics": [{"topic": "The Calvin cycle", "n": 1}],
+        "hasremedials": true, "remedialcol": true, "cannudge": true, "nudgeids": "[5]", "nudgelabel": "Remind the 1",
+        "remedials": [{"name": "Extra practice: The Calvin cycle", "url": "#", "tried": "0 of 1", "before": "31%",
+            "now": "–", "hasnow": false, "bar": 0}]
+    }
+}}
+<div class="local-quizbot local-quizbot-analysis">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3" style="gap: 1rem">
+        <p class="mb-0">
+            <span class="fw-bold font-weight-bold" dir="auto">{{quizname}}</span>
+            <span class="d-block small text-muted">{{#str}}analysis_basis, local_quizbot{{/str}}</span>
+        </p>
+        <div class="d-flex flex-wrap align-items-center gap-3" style="gap: 1rem">
+            {{{groupmenu}}}
+            <span class="local-quizbot-updated small">{{updated}}</span>
+            <a href="{{refreshurl}}" class="btn btn-sm btn-outline-secondary">{{#str}}analysis_refresh, local_quizbot{{/str}}</a>
+        </div>
+    </div>
+
+    {{^hasattempts}}
+    <div class="card">
+        <div class="card-body">
+            <h2 class="h5">{{#str}}analysis_none, local_quizbot{{/str}}</h2>
+            <p class="mb-0 text-muted">{{#str}}analysis_none_help, local_quizbot{{/str}}</p>
+        </div>
+    </div>
+    {{/hasattempts}}
+
+    {{#hasattempts}}
+    {{#passnote}}<p class="small text-muted mb-2">{{passnote}}</p>{{/passnote}}
+    {{#ungradednote}}<div class="alert alert-info py-2">{{ungradednote}}</div>{{/ungradednote}}
+
+    <div class="local-quizbot-tiles mb-3">
+        {{#tiles}}
+        <div class="local-quizbot-tile local-quizbot-figure {{#warn}}is-warn{{/warn}}">
+            <div class="local-quizbot-figurelabel">{{label}}</div>
+            <div class="local-quizbot-figurevalue">{{value}} <span class="local-quizbot-figureof">{{of}}</span></div>
+            {{#note}}<div class="small text-muted">{{note}}</div>{{/note}}
+            {{#anchor}}<a href="{{anchor}}" class="small">{{anchortext}}</a>{{/anchor}}
+        </div>
+        {{/tiles}}
+    </div>
+
+    <div class="row">
+        <div class="col-lg-5 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h2 class="h5 mb-1">{{#str}}analysis_spread, local_quizbot{{/str}}</h2>
+                    <p class="small text-muted">{{#str}}analysis_spread_help, local_quizbot{{/str}}</p>
+                    <div class="local-quizbot-histogram">
+                        {{#bands}}
+                        <div class="local-quizbot-histcol">
+                            <span class="local-quizbot-histn">{{n}}</span>
+                            <span class="local-quizbot-histbar {{#below}}is-weak{{/below}}" style="height: {{height}}%"></span>
+                        </div>
+                        {{/bands}}
+                    </div>
+                    <div class="local-quizbot-histlabels" aria-hidden="true">{{#bands}}<span>{{label}}</span>{{/bands}}</div>
+                    <p class="small mt-2 mb-0 d-flex flex-wrap gap-3" style="gap: 1rem">
+                        <span><span class="local-quizbot-key is-weak"></span> {{#str}}analysis_key_below, local_quizbot, {{pass}}{{/str}}</span>
+                        <span><span class="local-quizbot-key"></span> {{#str}}analysis_key_above, local_quizbot{{/str}}</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-7 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h2 class="h5 mb-1">{{#str}}analysis_topics, local_quizbot{{/str}}</h2>
+                    <p class="small text-muted">{{#str}}analysis_topics_help, local_quizbot{{/str}}</p>
+                    {{#topics}}
+                    <div class="local-quizbot-meter mb-2">
+                        <div class="d-flex justify-content-between gap-2" style="gap: .5rem">
+                            <span><span class="{{^other}}fw-bold font-weight-bold{{/other}}" dir="auto">{{name}}</span> <span class="small text-muted">· {{questions}}{{#few}} · {{#str}}analysis_fewtosure, local_quizbot{{/str}}{{/few}}</span></span>
+                            <span class="local-quizbot-num">{{pct}}</span>
+                        </div>
+                        <div class="local-quizbot-track"><span class="local-quizbot-fill {{#bar.weak}}is-weak{{/bar.weak}} {{#few}}is-few{{/few}}" style="width: {{bar.width}}%"></span></div>
+                    </div>
+                    {{/topics}}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h2 class="h5 mb-1">{{#str}}analysis_skills, local_quizbot{{/str}}</h2>
+                    <p class="small text-muted">{{#str}}analysis_skills_help, local_quizbot{{/str}}</p>
+                    {{#hasskills}}
+                    {{#skills}}
+                    <div class="local-quizbot-meter mb-2">
+                        <div class="d-flex justify-content-between gap-2" style="gap: .5rem">
+                            <span><span class="fw-bold font-weight-bold">{{name}}</span> <span class="small text-muted">· {{note}}</span></span>
+                            <span class="local-quizbot-num">{{pct}}</span>
+                        </div>
+                        <div class="local-quizbot-track"><span class="local-quizbot-fill {{#bar.weak}}is-weak{{/bar.weak}}" style="width: {{bar.width}}%"></span></div>
+                    </div>
+                    {{/skills}}
+                    {{/hasskills}}
+                    {{^hasskills}}<p class="mb-0">{{#str}}analysis_noskills, local_quizbot{{/str}}</p>{{/hasskills}}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h2 class="h5 mb-1">{{#str}}analysis_difficulty, local_quizbot{{/str}}</h2>
+                    <p class="small text-muted">{{#str}}analysis_difficulty_help, local_quizbot{{/str}}</p>
+                    {{#hasdifficulty}}
+                    <div class="table-responsive">
+                        <table class="table table-sm mb-0">
+                            <thead>
+                                <tr>
+                                    <th scope="col">{{#str}}analysis_planned, local_quizbot{{/str}}</th>
+                                    <th scope="col" class="text-end text-right">{{#str}}analysis_questionscol, local_quizbot{{/str}}</th>
+                                    <th scope="col" class="text-end text-right">{{#str}}analysis_correct, local_quizbot{{/str}}</th>
+                                    <th scope="col">{{#str}}analysis_verdict, local_quizbot{{/str}}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{#difficulty}}
+                                <tr>
+                                    <th scope="row">{{level}}</th>
+                                    <td class="text-end text-right local-quizbot-num">{{questions}}</td>
+                                    <td class="text-end text-right local-quizbot-num">{{pct}}</td>
+                                    <td class="local-quizbot-verdict">{{verdict}}</td>
+                                </tr>
+                                {{/difficulty}}
+                            </tbody>
+                        </table>
+                    </div>
+                    {{/hasdifficulty}}
+                    {{^hasdifficulty}}<p class="mb-0">{{#str}}analysis_nodifficulty, local_quizbot{{/str}}</p>{{/hasdifficulty}}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="d-flex flex-wrap align-items-baseline justify-content-between gap-2" style="gap: .5rem">
+                <h2 class="h5 mb-1">{{#str}}analysis_questionlist, local_quizbot{{/str}}</h2>
+                <a href="{{notesurl}}" class="btn btn-sm btn-outline-secondary">{{#onlynotes}}{{#str}}analysis_showall, local_quizbot{{/str}}{{/onlynotes}}{{^onlynotes}}{{#str}}analysis_shownotes, local_quizbot{{/str}}{{/onlynotes}}</a>
+            </div>
+            <p class="small text-muted">{{#str}}analysis_questionlist_help, local_quizbot, {{minanswers}}{{/str}}</p>
+            <div class="table-responsive">
+                <table class="table local-quizbot-qtable mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">{{#str}}analysis_question, local_quizbot{{/str}}</th>
+                            <th scope="col">{{#str}}analysis_topic, local_quizbot{{/str}}</th>
+                            <th scope="col">{{#str}}analysis_skill, local_quizbot{{/str}}</th>
+                            <th scope="col">{{#str}}analysis_correct, local_quizbot{{/str}}</th>
+                            <th scope="col">{{#str}}analysis_separates, local_quizbot{{/str}}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#questions}}
+                        <tr>
+                            <td class="local-quizbot-num">{{slot}}</td>
+                            <td>
+                                <span class="d-block" dir="auto">{{text}}</span>
+                                <span class="d-block small text-muted">{{type}}{{#label}} · <bdi>{{label}}</bdi>{{/label}}{{#previewurl}} · <a href="{{previewurl}}" target="_blank">{{#str}}analysis_preview, local_quizbot{{/str}}</a>{{/previewurl}}</span>
+                                {{#hasnotes}}<span class="d-block local-quizbot-qnotes">{{#notes}}<span class="local-quizbot-qnote">{{text}}</span>{{/notes}}</span>{{/hasnotes}}
+                            </td>
+                            <td><bdi>{{topic}}</bdi></td>
+                            <td>{{skill}}</td>
+                            <td class="local-quizbot-pctcell">
+                                <span class="local-quizbot-num">{{pct}}</span>
+                                <span class="local-quizbot-track is-small"><span class="local-quizbot-fill {{#bar.weak}}is-weak{{/bar.weak}}" style="width: {{bar.width}}%"></span></span>
+                            </td>
+                            <td class="{{#sepweak}}local-quizbot-weaktext{{/sepweak}}">{{sep}}</td>
+                        </tr>
+                        {{/questions}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {{#hasremedials}}
+    <div class="card mb-3" id="local-quizbot-remedials">
+        <div class="card-body">
+            <div class="d-flex flex-wrap align-items-baseline justify-content-between" style="gap: .5rem">
+                <div>
+                    <h2 class="h5 mb-1">{{#str}}remedial_heading, local_quizbot{{/str}}</h2>
+                    <p class="small text-muted mb-2">{{#str}}remedial_headinghelp, local_quizbot{{/str}}</p>
+                </div>
+                {{#cannudge}}<button type="button" class="btn btn-outline-secondary btn-sm local-quizbot-message" data-users="{{nudgeids}}">{{nudgelabel}}</button>{{/cannudge}}
+            </div>
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col">{{#str}}course_quiz, local_quizbot{{/str}}</th>
+                            <th scope="col">{{#str}}remedial_triedcol, local_quizbot{{/str}}</th>
+                            <th scope="col">{{#str}}remedial_beforenow, local_quizbot{{/str}}</th>
+                            <th scope="col"><span class="visually-hidden sr-only">{{#str}}course_results, local_quizbot{{/str}}</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#remedials}}
+                        <tr>
+                            <th scope="row" dir="auto">{{name}}</th>
+                            <td class="local-quizbot-num">{{tried}}</td>
+                            <td>
+                                <div class="d-flex align-items-center" style="gap: .6rem">
+                                    <span class="local-quizbot-num local-quizbot-weaktext">{{before}}</span>
+                                    <span aria-hidden="true">→</span>
+                                    <span class="local-quizbot-num fw-bold font-weight-bold">{{now}}</span>
+                                    {{#hasnow}}<span class="local-quizbot-track flex-grow-1" style="max-width: 12rem"><span class="local-quizbot-fill" style="width: {{bar}}%"></span></span>{{/hasnow}}
+                                </div>
+                            </td>
+                            <td class="text-end text-right"><a href="{{url}}">{{#str}}course_results, local_quizbot{{/str}}</a></td>
+                        </tr>
+                        {{/remedials}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {{/hasremedials}}
+
+    {{#hasbelow}}
+    <div class="card" id="local-quizbot-below">
+        <div class="card-body">
+            <div class="d-flex flex-wrap align-items-baseline justify-content-between gap-2" style="gap: .5rem">
+                <div>
+                    <h2 class="h5 mb-1">{{#str}}analysis_belowheading, local_quizbot{{/str}}</h2>
+                    <p class="small text-muted mb-2">{{#str}}analysis_belowhelp, local_quizbot{{/str}}</p>
+                </div>
+                <div class="d-flex flex-wrap" style="gap: .5rem">
+                    {{#canremedial}}<a href="{{remedialurl}}" class="btn btn-primary btn-sm" id="local-quizbot-remedial">{{#str}}remedial_button, local_quizbot{{/str}}</a>{{/canremedial}}
+                    {{#canmessage}}<button type="button" class="btn {{#canremedial}}btn-outline-secondary{{/canremedial}}{{^canremedial}}btn-primary{{/canremedial}} btn-sm local-quizbot-message" id="local-quizbot-message" data-users="{{userids}}">{{#str}}analysis_message, local_quizbot{{/str}}</button>{{/canmessage}}
+                </div>
+            </div>
+            {{#hasremedialtopics}}
+            <div class="d-flex flex-wrap align-items-center small mb-2" style="gap: .4rem">
+                <span class="text-muted">{{#str}}remedial_onepertopic, local_quizbot{{/str}}</span>
+                {{#remedialtopics}}<span class="local-quizbot-mark px-2"><bdi>{{topic}}</bdi> · {{n}}</span>{{/remedialtopics}}
+            </div>
+            {{/hasremedialtopics}}
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col">{{#str}}analysis_student, local_quizbot{{/str}}</th>
+                            <th scope="col" class="text-end text-right">{{#str}}analysis_score, local_quizbot{{/str}}</th>
+                            <th scope="col">{{#str}}analysis_revise, local_quizbot{{/str}}</th>
+                            <th scope="col">{{#str}}analysis_when, local_quizbot{{/str}}</th>
+                            {{#remedialcol}}<th scope="col">{{#str}}remedial_column, local_quizbot{{/str}}</th>{{/remedialcol}}
+                            <th scope="col"><span class="visually-hidden sr-only">{{#str}}analysis_review, local_quizbot{{/str}}</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#below}}
+                        <tr>
+                            <th scope="row"><a href="{{profileurl}}">{{name}}</a></th>
+                            <td class="text-end text-right local-quizbot-num local-quizbot-weaktext">{{score}}</td>
+                            <td><bdi>{{revise}}</bdi></td>
+                            <td>{{when}}</td>
+                            {{#remedialcol}}<td><span class="badge local-quizbot-state {{#remedialdone}}is-done{{/remedialdone}}{{^remedialdone}}is-problem{{/remedialdone}}">{{remedial}}</span></td>{{/remedialcol}}
+                            <td class="text-end text-right"><a href="{{reviewurl}}">{{#str}}analysis_review, local_quizbot{{/str}}</a></td>
+                        </tr>
+                        {{/below}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {{/hasbelow}}
+    {{/hasattempts}}
+</div>
