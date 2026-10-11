@@ -186,6 +186,9 @@ class job {
             'zh' => '中文',
             'ja' => '日本語',
             'ko' => '한국어',
+            'uk' => 'Українська',
+            'af' => 'Afrikaans',
+            'fil' => 'Filipino',
         ];
     }
 

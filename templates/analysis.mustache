@@ -20,6 +20,8 @@
     Quizbot Analysis of one quiz (1.1), for its teachers: a summary, the spread of scores, topics, skills, planned
     against real difficulty, every question with notes, and the students below the pass mark. Bars are plain boxes
     with a width or height, so the page needs no script; local_quizbot/analysis only opens Moodle's message window.
+    When a year or a class is chosen (1.2.1), the foot of the page lists its students who need attention across the
+    course's quizzes (local_quizbot/attention).
 
     Example context (json):
     {
@@ -45,7 +47,13 @@
         "remedialtopics": [{"topic": "The Calvin cycle", "n": 1}],
         "hasremedials": true, "remedialcol": true, "cannudge": true, "nudgeids": "[5]", "nudgelabel": "Remind the 1",
         "remedials": [{"name": "Extra practice: The Calvin cycle", "url": "#", "tried": "0 of 1", "before": "31%",
-            "now": "–", "hasnow": false, "bar": 0}]
+            "now": "–", "hasnow": false, "bar": 0}],
+        "attention": {"help": "All Grade 10 · across this course's quizzes · average below 60% over 2 or more quizzes",
+            "courseurl": "#", "hasstudents": true, "hasclass": true,
+            "students": [{"name": "Aylin K.", "class": "10A", "done": 3, "average": "44%",
+                "direction": "Falling: 52% → 41% → 38%", "falling": true, "revise": "The Calvin cycle",
+                "progressurl": "#"}]},
+        "arrow": "→"
     }
 }}
 <div class="local-quizbot local-quizbot-analysis">
@@ -253,7 +261,7 @@
                             <td>
                                 <div class="d-flex align-items-center" style="gap: .6rem">
                                     <span class="local-quizbot-num local-quizbot-weaktext">{{before}}</span>
-                                    <span aria-hidden="true">→</span>
+                                    <span aria-hidden="true">{{arrow}}</span>
                                     <span class="local-quizbot-num fw-bold font-weight-bold">{{now}}</span>
                                     {{#hasnow}}<span class="local-quizbot-track flex-grow-1" style="max-width: 12rem"><span class="local-quizbot-fill" style="width: {{bar}}%"></span></span>{{/hasnow}}
                                 </div>
@@ -317,4 +325,19 @@
     </div>
     {{/hasbelow}}
     {{/hasattempts}}
+
+    {{#attention}}
+    <div class="card mt-3" id="local-quizbot-attention">
+        <div class="card-body">
+            <div class="d-flex flex-wrap align-items-baseline justify-content-between" style="gap: .5rem">
+                <div>
+                    <h2 class="h5 mb-1">{{#str}}course_attentionheading, local_quizbot{{/str}}</h2>
+                    <p class="small text-muted mb-2">{{help}}</p>
+                </div>
+                <a href="{{courseurl}}" class="btn btn-outline-secondary btn-sm">{{#str}}courseanalysis, local_quizbot{{/str}}</a>
+            </div>
+            {{> local_quizbot/attention }}
+        </div>
+    </div>
+    {{/attention}}
 </div>

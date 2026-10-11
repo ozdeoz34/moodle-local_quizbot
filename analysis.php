@@ -25,6 +25,7 @@
 
 use local_quizbot\local\analysis;
 use local_quizbot\local\bloom;
+use local_quizbot\local\course_analysis;
 use local_quizbot\local\group_menu;
 use local_quizbot\local\page;
 use local_quizbot\local\remedial;
@@ -232,6 +233,26 @@ if ($messaging && ($below || $notstarted)) {
     $PAGE->requires->js_call_amd('local_quizbot/analysis', 'init');
 }
 
+// A whole year ("All Grade 10") or one class ("10A") is shown: at the foot of the page, its students who need attention
+// across the course's quizzes - the table of the whole-course page, for a teacher who may open that page.
+$attention = null;
+if ($groupids && has_capability('local/quizbot:viewanalysis', context_course::instance($course->id))) {
+    $students = course_analysis::attention_rows(
+        course_analysis::gather($course, $groupids)['attention'],
+        $course,
+        $menu['classes']
+    );
+    $attention = [
+        'help' => $str('analysis_attentionhelp', ['group' => $menu['name'], 'pct' => course_analysis::ATTENTION,
+            'n' => course_analysis::ATTENTION_QUIZZES]),
+        'courseurl' => (new moodle_url('/local/quizbot/courseanalysis.php', ['id' => $course->id]
+            + ($menu['year'] !== '' ? ['year' => $menu['year']] : ['group' => $groupids[0]])))->out(false),
+        'students' => $students,
+        'hasstudents' => (bool) $students,
+        'hasclass' => count($menu['classes']) > 1,
+    ];
+}
+
 $ago = max(0, (int) round((time() - $a['time']) / 60));
 echo $OUTPUT->render_from_template('local_quizbot/analysis', [
     'quizname' => $quizname,
@@ -269,6 +290,8 @@ echo $OUTPUT->render_from_template('local_quizbot/analysis', [
     'cannudge' => $messaging && $notstarted,
     'nudgeids' => json_encode($notstarted),
     'nudgelabel' => $str('remedial_remind', count($notstarted)),
+    'attention' => $attention,
+    'arrow' => page::arrow(),
 ]);
 echo html_writer::end_div();
 echo $OUTPUT->footer();

@@ -181,6 +181,69 @@ class course_analysis {
     }
 
     /**
+     * The students who need attention as the rows of the table (templates/attention.mustache), lowest average first: on
+     * the whole-course page, and at the foot of a quiz's analysis when a year or a class is shown.
+     *
+     * @param array $attention compute()'s 'attention'
+     * @param \stdClass $course
+     * @param string[] $classes [groupid => name] the classes shown together; with two or more, each row says which of
+     *                 them the student is in ('class'), so a whole year's table tells 10A from 10B
+     * @return array [['name', 'class', 'done', 'average', 'direction', 'falling', 'revise', 'progressurl']]
+     */
+    public static function attention_rows(array $attention, \stdClass $course, array $classes = []): array {
+        global $DB;
+
+        if (!$attention) {
+            return [];
+        }
+        $percent = fn (?float $pct): string => $pct === null ? '–' : format_float($pct, 0) . '%';
+        $userids = array_column($attention, 'user');
+        $users = $DB->get_records_list('user', 'id', $userids, '', 'id, '
+            . implode(', ', \core_user\fields::get_name_fields()));
+        // Which of the classes each student is in (usually one).
+        $classof = [];
+        if (count($classes) > 1) {
+            [$ingroups, $groupparams] = $DB->get_in_or_equal(array_keys($classes), SQL_PARAMS_NAMED, 'g');
+            [$inusers, $userparams] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED, 'u');
+            $members = $DB->get_recordset_select(
+                'groups_members',
+                "groupid $ingroups AND userid $inusers",
+                $groupparams + $userparams,
+                'id',
+                'id, groupid, userid'
+            );
+            foreach ($members as $m) {
+                $classof[$m->userid][] = $classes[$m->groupid];
+            }
+            $members->close();
+        }
+        $rows = [];
+        foreach ($attention as $s) {
+            if (!isset($users[$s['user']])) {
+                continue;
+            }
+            $rows[] = [
+                'name' => fullname($users[$s['user']]),
+                'class' => implode(', ', $classof[$s['user']] ?? []) ?: '–',
+                'done' => $s['done'],
+                'average' => $percent($s['average']),
+                'direction' => get_string(
+                    'course_dir_' . $s['direction'],
+                    'local_quizbot',
+                    page::series(array_map($percent, $s['series']))
+                ),
+                'falling' => $s['direction'] === 'falling',
+                'revise' => $s['revise'] ?? '–',
+                'progressurl' => (new \moodle_url(
+                    '/local/quizbot/myprogress.php',
+                    ['id' => $course->id, 'userid' => $s['user']]
+                ))->out(false),
+            ];
+        }
+        return $rows;
+    }
+
+    /**
      * Which way a student's scores are going: rising, falling, steady or upanddown.
      *
      * @param float[] $series oldest first

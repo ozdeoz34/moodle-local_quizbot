@@ -75,12 +75,15 @@ class group_menu {
      * @param \cm_info|null $cm the quiz, or null for the whole course
      * @param \moodle_url $url the page, without group or year
      * @return array ['html' => the menu, 'groups' => int[] the selected classes ([] = everybody), 'year' => the selected
-     *               year's key or '', 'nogroup' => the teacher may see only their own classes and has none]
+     *               year's key or '', 'name' => the selected year's or class's name as shown ("All Grade 10", "10A"; '' =
+     *               everybody), 'classes' => [groupid => name] the classes that are shown (the year's, the one chosen, or
+     *               all the teacher may see for everybody), 'nogroup' => the teacher may see only their own classes and
+     *               has none]
      */
     public static function for_page(\stdClass $course, ?\cm_info $cm, \moodle_url $url): array {
         global $DB, $OUTPUT, $SESSION, $USER;
 
-        $none = ['html' => '', 'groups' => [], 'year' => '', 'nogroup' => false];
+        $none = ['html' => '', 'groups' => [], 'year' => '', 'name' => '', 'classes' => [], 'nogroup' => false];
         $context = $cm ? \context_module::instance($cm->id) : \context_course::instance($course->id);
         $all = has_capability('moodle/site:accessallgroups', $context);
         if ($cm) {
@@ -173,6 +176,9 @@ class group_menu {
             'html' => \html_writer::div($OUTPUT->render($select), 'groupselector'),
             'groups' => $year ? $year['groups'] : ($active ? [$active] : []),
             'year' => $year ? $year['key'] : '',
+            'name' => $year ? $year['name'] : ($active ? ($names[$active] ?? '') : ''),
+            'classes' => $year ? array_intersect_key($names, array_flip($year['groups']))
+                : ($active ? array_intersect_key($names, [$active => true]) : $names),
             'nogroup' => false,
         ];
     }

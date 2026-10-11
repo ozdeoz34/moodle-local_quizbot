@@ -26,6 +26,7 @@ use local_quizbot\local\course_analysis;
  * @copyright  2026 Capstone Edu Ltd
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers     \local_quizbot\local\course_analysis
+ * @covers     \local_quizbot\local\page
  */
 final class course_analysis_test extends \advanced_testcase {
     /**
@@ -87,5 +88,82 @@ final class course_analysis_test extends \advanced_testcase {
         $this->assertEqualsWithDelta(45.0, $c['attention'][0]['average'], 0.01);
         $this->assertSame('rising', $c['attention'][0]['direction']);
         $this->assertSame('Light', $c['attention'][0]['revise']);
+    }
+
+    /**
+     * The rows of the "Students who need attention" table (whole-course page; foot of a quiz's analysis for a year or a
+     * class): in the order given, a falling series marked, no topic shown as a dash, a deleted account left out.
+     */
+    public function test_attention_rows(): void {
+        $this->resetAfterTest();
+        $gen = $this->getDataGenerator();
+        $course = $gen->create_course();
+        $uma = $gen->create_user(['firstname' => 'Uma', 'lastname' => 'Okafor']);
+        $mei = $gen->create_user(['firstname' => 'Mei', 'lastname' => 'Tanaka']);
+
+        $this->assertSame([], course_analysis::attention_rows([], $course));
+
+        $rows = course_analysis::attention_rows([
+            ['user' => (int) $uma->id, 'done' => 3, 'average' => 17.0, 'series' => [13.0, 13.0, 25.0],
+                'direction' => 'upanddown', 'revise' => 'Week 2 overview'],
+            ['user' => (int) $mei->id, 'done' => 3, 'average' => 21.0, 'series' => [38.0, 25.0, 0.0],
+                'direction' => 'falling', 'revise' => null],
+            ['user' => 999999, 'done' => 2, 'average' => 30.0, 'series' => [30.0, 30.0], 'direction' => 'steady',
+                'revise' => 'Light'],
+        ], $course);
+
+        $this->assertCount(2, $rows, 'The account that is gone is left out.');
+        $this->assertSame('Uma Okafor', $rows[0]['name']);
+        $this->assertSame(3, $rows[0]['done']);
+        $this->assertSame('17%', $rows[0]['average']);
+        $this->assertSame('Up and down: 13% → 13% → 25%', $rows[0]['direction']);
+        $this->assertFalse($rows[0]['falling']);
+        $this->assertSame('Week 2 overview', $rows[0]['revise']);
+        $this->assertStringContainsString('/local/quizbot/myprogress.php?id=' . $course->id, $rows[0]['progressurl']);
+        $this->assertStringContainsString('userid=' . $uma->id, $rows[0]['progressurl']);
+        $this->assertSame('Falling: 38% → 25% → 0%', $rows[1]['direction']);
+        $this->assertTrue($rows[1]['falling']);
+        $this->assertSame('–', $rows[1]['revise']);
+    }
+
+    /**
+     * With two or more classes shown together (a whole year), each row says which class the student is in; a student in
+     * none of them gets a dash; a group that is not one of the classes shown (a remedial quiz's group) is not named.
+     */
+    public function test_attention_rows_classes(): void {
+        $this->resetAfterTest();
+        $gen = $this->getDataGenerator();
+        $course = $gen->create_course();
+        $a = $gen->create_group(['courseid' => $course->id, 'name' => '10A']);
+        $b = $gen->create_group(['courseid' => $course->id, 'name' => '10B']);
+        $other = $gen->create_group(['courseid' => $course->id, 'name' => 'Remedial: Light']);
+        $students = [];
+        foreach (['uma' => [$a, $other], 'mei' => [$b], 'noa' => []] as $name => $groups) {
+            $students[$name] = $gen->create_and_enrol($course, 'student', ['firstname' => ucfirst($name)]);
+            foreach ($groups as $g) {
+                $gen->create_group_member(['groupid' => $g->id, 'userid' => $students[$name]->id]);
+            }
+        }
+        $attention = [];
+        foreach ($students as $s) {
+            $attention[] = ['user' => (int) $s->id, 'done' => 2, 'average' => 40.0, 'series' => [40.0, 40.0],
+                'direction' => 'steady', 'revise' => 'Light'];
+        }
+        $classes = [(int) $a->id => '10A', (int) $b->id => '10B'];
+
+        $rows = course_analysis::attention_rows($attention, $course, $classes);
+        $this->assertSame(['10A', '10B', '–'], array_column($rows, 'class'));
+
+        $rows = course_analysis::attention_rows($attention, $course, [(int) $a->id => '10A']);
+        $this->assertSame(['–', '–', '–'], array_column($rows, 'class'), 'One class: no column, nothing looked up.');
+    }
+
+    /**
+     * Figures in the order they happened, with an arrow that points the way the page is read (left to right here).
+     */
+    public function test_series(): void {
+        $this->assertSame('→', \local_quizbot\local\page::arrow());
+        $this->assertSame('48% → 68%', \local_quizbot\local\page::series(['48%', '68%']));
+        $this->assertSame('48%', \local_quizbot\local\page::series(['48%']));
     }
 }

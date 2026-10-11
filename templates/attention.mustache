@@ -1,0 +1,62 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_quizbot/attention
+
+    The students who need attention (1.2.1): the table of the whole-course analysis, also shown at the foot of a quiz's
+    analysis when a year ("All Grade 10") or a class ("10A") is chosen. The card and its heading belong to the page.
+    With several classes shown together (hasclass), a column says which class each student is in. Plain HTML: no
+    script needed.
+
+    Example context (json):
+    {
+        "students": [{"name": "Aylin K.", "class": "10A", "done": 3, "average": "44%",
+            "direction": "Falling: 52% → 41% → 38%", "falling": true, "revise": "The Calvin cycle", "progressurl": "#"}],
+        "hasstudents": true, "hasclass": true
+    }
+}}
+{{#hasstudents}}
+<div class="table-responsive">
+    <table class="table mb-0">
+        <thead>
+            <tr>
+                <th scope="col">{{#str}}analysis_student, local_quizbot{{/str}}</th>
+                {{#hasclass}}<th scope="col">{{#str}}course_class, local_quizbot{{/str}}</th>{{/hasclass}}
+                <th scope="col" class="text-end text-right">{{#str}}course_done, local_quizbot{{/str}}</th>
+                <th scope="col" class="text-end text-right">{{#str}}course_studentaverage, local_quizbot{{/str}}</th>
+                <th scope="col">{{#str}}course_direction, local_quizbot{{/str}}</th>
+                <th scope="col">{{#str}}analysis_revise, local_quizbot{{/str}}</th>
+                <th scope="col"><span class="visually-hidden sr-only">{{#str}}myprogress, local_quizbot{{/str}}</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#students}}
+            <tr>
+                <th scope="row">{{name}}</th>
+                {{#hasclass}}<td><bdi>{{class}}</bdi></td>{{/hasclass}}
+                <td class="text-end text-right local-quizbot-num">{{done}}</td>
+                <td class="text-end text-right local-quizbot-num local-quizbot-weaktext">{{average}}</td>
+                <td class="{{#falling}}local-quizbot-weaktext{{/falling}}">{{direction}}</td>
+                <td><bdi>{{revise}}</bdi></td>
+                <td class="text-end text-right"><a href="{{progressurl}}">{{#str}}course_progress, local_quizbot{{/str}}</a></td>
+            </tr>
+            {{/students}}
+        </tbody>
+    </table>
+</div>
+{{/hasstudents}}
+{{^hasstudents}}<p class="mb-0">{{#str}}course_noattention, local_quizbot{{/str}}</p>{{/hasstudents}}

@@ -1,6 +1,22 @@
 # Changes
 
-## 1.2.0 (2026-10-08) – the first release after 1.0.0; it includes 1.1.0, which was not published on its own
+## 1.2.1 (2026-10-11)
+
+- Quizbot Analysis of a quiz: when a year ("All Grade 10") or a class ("10A") is chosen in the groups menu, the foot
+  of the page lists that year's or class's **students who need attention** - the table of the whole-course page (an
+  average below 60% over two or more of the course's quizzes, lowest first, with the direction of their scores, the
+  topic to revise first and a link to each student's progress), with a button to the whole-course analysis for the
+  same year or class. Not shown for "All participants" (the whole-course page is that view), nor to someone who may
+  not see the course's analysis.
+- That table, on both pages: when several classes are shown together (a whole year, or everybody on the whole-course
+  page), a **Class** column says which class each student is in. The column of each student's own average is headed
+  "Average", no longer "Class average".
+- Questions can also be written in **Ukrainian, Afrikaans and Filipino** (the language menu of the questions step).
+- Right-to-left languages (Arabic, Hebrew): the arrow between an earlier and a later figure ("48% → 68%" in the
+  remedial quizzes' results, the students who need attention, the course's and a student's averages) points the way the
+  page is read.
+
+## 1.2.0 (2026-10-08) – the first version submitted to the Moodle Marketplace; it includes 1.0.0 and 1.1.0
 
 - Make remedial quizzes: one button above "Students below the pass mark" in a quiz's Quizbot Analysis. Quizbot
   groups those students by the topic each should revise first; the teacher unticks or moves students and chooses the
@@ -53,7 +69,7 @@
   fonts/, SIL Open Font License; nothing is loaded from outside the site), ink buttons, hairline cards. Only the
   plugin's own pages and its button on the quiz change; the rest of Moodle keeps the school's theme.
 
-## 1.0.0 (2026-10-07) – first release on the Moodle Marketplace
+## 1.0.0 (2026-10-07, not published on its own)
 
 - Plans: teacher packages (500, 1,000 or 2,000 questions for one teacher) and school plans (up to 20, 50 or 100
   teachers, questions not counted). The licence page shows the plan, teacher places in use and the video and

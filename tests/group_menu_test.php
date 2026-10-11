@@ -92,12 +92,16 @@ final class group_menu_test extends \advanced_testcase {
 
         $menu = group_menu::for_page($course, $cm, $url);
         $this->assertSame([], $menu['groups'], 'Everybody at first.');
+        $this->assertSame('', $menu['name'], 'Everybody has no name.');
+        $this->assertSame(['10A', '10B', '11A'], array_values($menu['classes']), 'Everybody: every class.');
         $this->assertMatchesRegularExpression('/All participants.*All Grade 10.*>10A<.*>10B<.*>11A</s', $menu['html']);
 
         $_GET['year'] = 'n' . $g['10A'];
         $menu = group_menu::for_page($course, $cm, $url);
         $this->assertSame([(int) $g['10A'], (int) $g['10B']], $menu['groups']);
         $this->assertSame('n' . $g['10A'], $menu['year']);
+        $this->assertSame('All Grade 10', $menu['name']);
+        $this->assertSame([(int) $g['10A'] => '10A', (int) $g['10B'] => '10B'], $menu['classes']);
 
         unset($_GET['year']);
         $this->assertSame('n' . $g['10A'], group_menu::for_page($course, $cm, $url)['year'], 'Remembered.');
@@ -106,6 +110,8 @@ final class group_menu_test extends \advanced_testcase {
         $menu = group_menu::for_page($course, $cm, $url);
         $this->assertSame([(int) $g['11A']], $menu['groups']);
         $this->assertSame('', $menu['year']);
+        $this->assertSame('11A', $menu['name'], 'A class is called by its own name.');
+        $this->assertSame([(int) $g['11A'] => '11A'], $menu['classes']);
         unset($_GET['group']);
     }
 

@@ -88,7 +88,7 @@ $tiles = [
     ['label' => $str('myprogress_done'), 'value' => $p['done'], 'of' => $str('analysis_of', $p['quizcount']), 'note' => $next],
     ['label' => $str($own ? 'myprogress_average' : 'myprogress_average_other'), 'value' => $percent($p['average']),
         // The trend only from two quizzes on: one number twice says nothing.
-        'of' => '', 'note' => count($p['trend']) > 1 ? implode(' → ', array_map($percent, $p['trend'])) : ''],
+        'of' => '', 'note' => count($p['trend']) > 1 ? page::series(array_map($percent, $p['trend'])) : ''],
 ];
 if ($strongest) {
     $tiles[] = ['label' => $str('myprogress_strongest'), 'value' => '', 'text' => $strongest['name'], 'of' => '',

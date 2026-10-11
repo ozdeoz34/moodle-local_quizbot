@@ -135,35 +135,7 @@
         <div class="card-body">
             <h2 class="h5 mb-1">{{#str}}course_attentionheading, local_quizbot{{/str}}</h2>
             <p class="small text-muted">{{#str}}course_attentionhelp, local_quizbot{{/str}}</p>
-            {{#hasstudents}}
-            <div class="table-responsive">
-                <table class="table mb-0">
-                    <thead>
-                        <tr>
-                            <th scope="col">{{#str}}analysis_student, local_quizbot{{/str}}</th>
-                            <th scope="col" class="text-end text-right">{{#str}}course_done, local_quizbot{{/str}}</th>
-                            <th scope="col" class="text-end text-right">{{#str}}analysis_average, local_quizbot{{/str}}</th>
-                            <th scope="col">{{#str}}course_direction, local_quizbot{{/str}}</th>
-                            <th scope="col">{{#str}}analysis_revise, local_quizbot{{/str}}</th>
-                            <th scope="col"><span class="visually-hidden sr-only">{{#str}}myprogress, local_quizbot{{/str}}</span></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {{#students}}
-                        <tr>
-                            <th scope="row">{{name}}</th>
-                            <td class="text-end text-right local-quizbot-num">{{done}}</td>
-                            <td class="text-end text-right local-quizbot-num local-quizbot-weaktext">{{average}}</td>
-                            <td class="{{#falling}}local-quizbot-weaktext{{/falling}}">{{direction}}</td>
-                            <td><bdi>{{revise}}</bdi></td>
-                            <td class="text-end text-right"><a href="{{progressurl}}">{{#str}}course_progress, local_quizbot{{/str}}</a></td>
-                        </tr>
-                        {{/students}}
-                    </tbody>
-                </table>
-            </div>
-            {{/hasstudents}}
-            {{^hasstudents}}<p class="mb-0">{{#str}}course_noattention, local_quizbot{{/str}}</p>{{/hasstudents}}
+            {{> local_quizbot/attention }}
         </div>
     </div>
     {{/hasquizzes}}

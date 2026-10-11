@@ -64,7 +64,7 @@ $tiles = [
     ['label' => $str('course_quizzes'), 'value' => $c['quizcount'], 'note' => $str('course_taken', $c['taken'])],
     ['label' => $str('course_students'), 'value' => $c['classsize'], 'note' => ''],
     ['label' => $str('course_average'), 'value' => $percent($c['average']),
-        'note' => count($c['trend']) > 1 ? implode(' → ', array_map($percent, $c['trend'])) : ''],
+        'note' => count($c['trend']) > 1 ? page::series(array_map($percent, $c['trend'])) : ''],
     ['label' => $str('course_attention'), 'value' => count($c['attention']), 'warn' => (bool) $c['attention'],
         'note' => $str('course_attention_rule', ['pct' => course_analysis::ATTENTION, 'n' => course_analysis::ATTENTION_QUIZZES])],
 ];
@@ -93,21 +93,7 @@ $skills = array_map(
     $c['skills']
 );
 
-$students = [];
-if ($c['attention']) {
-    $users = $DB->get_records_list('user', 'id', array_column($c['attention'], 'user'), '', 'id, '
-        . implode(', ', \core_user\fields::get_name_fields()));
-    foreach ($c['attention'] as $s) {
-        if (!isset($users[$s['user']])) {
-            continue;
-        }
-        $students[] = ['name' => fullname($users[$s['user']]), 'done' => $s['done'], 'average' => $percent($s['average']),
-            'direction' => $str('course_dir_' . $s['direction'], implode(' → ', array_map($percent, $s['series']))),
-            'falling' => $s['direction'] === 'falling', 'revise' => $s['revise'] ?? '–',
-            'progressurl' => (new moodle_url('/local/quizbot/myprogress.php', ['id' => $course->id, 'userid' => $s['user']]))
-                ->out(false)];
-    }
-}
+$students = course_analysis::attention_rows($c['attention'], $course, $menu['classes']);
 
 echo $OUTPUT->header();
 echo page::desk_start($str('courseanalysis'));
@@ -123,6 +109,7 @@ echo $OUTPUT->render_from_template('local_quizbot/courseanalysis', [
     'hasskills' => (bool) $skills,
     'students' => $students,
     'hasstudents' => (bool) $students,
+    'hasclass' => count($menu['classes']) > 1,
 ]);
 echo html_writer::end_div();
 echo $OUTPUT->footer();
