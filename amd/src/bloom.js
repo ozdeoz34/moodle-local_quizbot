@@ -34,7 +34,8 @@
  * @returns {Object} {flow, left, unmet}
  */
 const plan = (cfg, counts, skills) => {
-    const left = {}, flow = {};
+    const left = {};
+    const flow = {};
     cfg.types.forEach((t) => {
         left[t] = Math.max(0, counts[t] || 0);
         flow[t] = {};
@@ -43,8 +44,27 @@ const plan = (cfg, counts, skills) => {
         });
     });
     const augment = (start) => {
-        const parentType = {}, parentLevel = {}, seenLevel = {[start]: true}, seenType = {};
+        const parentType = {};
+        const parentLevel = {};
+        const seenLevel = {[start]: true};
+        const seenType = {};
         const queue = [start];
+        // A kind with room was found: the question goes there, and along the way back to the level that asked each
+        // kind passes one of its questions on to the level before it.
+        const walkBack = (type) => {
+            let t = type;
+            let l = parentType[type];
+            for (;;) {
+                flow[t][l]++;
+                if (l === start) {
+                    return;
+                }
+                const prev = parentLevel[l];
+                flow[prev][l]--;
+                t = prev;
+                l = parentType[t];
+            }
+        };
         while (queue.length) {
             const level = queue.shift();
             for (const type of cfg.fits[level]) {
@@ -55,17 +75,8 @@ const plan = (cfg, counts, skills) => {
                 parentType[type] = level;
                 if (left[type] > 0) {
                     left[type]--;
-                    let t = type, l = parentType[type];
-                    for (;;) {
-                        flow[t][l]++;
-                        if (l === start) {
-                            return true;
-                        }
-                        const prev = parentLevel[l];
-                        flow[prev][l]--;
-                        t = prev;
-                        l = parentType[t];
-                    }
+                    walkBack(type);
+                    return true;
                 }
                 cfg.levels.forEach((other) => {
                     if (!seenLevel[other] && flow[type][other] > 0) {
@@ -192,7 +203,7 @@ export const init = () => {
             generate.disabled = on.checked && problem !== '';
         }
 
-        // the table of how the questions will be written
+        // The table of how the questions will be written.
         while (table.firstChild) {
             table.removeChild(table.firstChild);
         }
@@ -249,7 +260,8 @@ export const init = () => {
             skills[l] = 0;
         });
         for (let u = 0; u < total; u++) {
-            let best = null, need = -Infinity;
+            let best = null;
+            let need = -Infinity;
             cfg.levels.forEach((l) => {
                 if (!w[l]) {
                     return;

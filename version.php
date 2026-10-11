@@ -25,9 +25,9 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_quizbot';
-$plugin->version = 2026101101;
+$plugin->version = 2026101102;
 $plugin->requires = 2022112800;        // Moodle 4.1.
 // Tested on 4.1, 4.2, 4.3, 4.4, 4.5, 5.0, 5.1 and 5.2 (stage); PHPUnit also on 4.1 with PHP 7.4 and on PostgreSQL.
 $plugin->supported = [401, 502];
 $plugin->maturity = MATURITY_STABLE;
-$plugin->release = '1.2.1';
+$plugin->release = '1.2.2';

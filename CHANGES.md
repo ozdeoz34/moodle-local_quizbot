@@ -1,5 +1,10 @@
 # Changes
 
+## 1.2.2 (2026-10-11)
+
+- The JavaScript sources follow Moodle's style rules to the letter: `grunt` with `--max-lint-warnings 0` (as
+  moodle-plugin-ci runs it) reported nine style warnings in two files. No change in what the plugin does.
+
 ## 1.2.1 (2026-10-11)
 
 - Quizbot Analysis of a quiz: when a year ("All Grade 10") or a class ("10A") is chosen in the groups menu, the foot

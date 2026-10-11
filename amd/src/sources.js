@@ -80,7 +80,7 @@ export const init = () => {
         });
         if (note) {
             note.classList.toggle('fw-bold', full);
-            note.classList.toggle('font-weight-bold', full);       // The same in Bootstrap 4 (Moodle 4.x).
+            note.classList.toggle('font-weight-bold', full); // The same in Bootstrap 4 (Moodle 4.x).
         }
     };
 
