@@ -1,5 +1,14 @@
 # Changes
 
+## 1.2.3 (2026-10-16)
+
+- Backup and restore: a course backup now carries Quizbot's own data, so a restored or duplicated course keeps it.
+  With each question: what Quizbot found out about it (topic, thinking skill, difficulty, the material it was written
+  from), for Quizbot Analysis. With each quiz: the remedial quizzes made from it and their groups. Course modules and
+  groups are mapped to the restored ones; a remedial quiz that is not in the backup is left out. The teachers' wizard
+  runs are not backed up: they are drafts that last only until the questions are added or discarded.
+- The plugin package includes its licence (LICENSE, GNU GPL v3).
+
 ## 1.2.2 (2026-10-11)
 
 - The JavaScript sources follow Moodle's style rules to the letter: `grunt` with `--max-lint-warnings 0` (as
